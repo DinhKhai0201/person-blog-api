@@ -2,39 +2,37 @@ const encryptionHelper = require('../helpers/encryption.helper'),
     dateTimeHelper = require('../helpers/date-time.helper'),
     passwordHelper = require('../helpers/password.helper'),
     appConfig = require('../configs/app.config'),
-    Provider = require('mongoose').model('Provider'),
-    providerService = require('../services/provider.service'),
+    User = require('mongoose').model('User'),
+    userService = require('./user.service'),
     constants = require('../common/constants'),
     MessageConstants = constants.MessageConstants;
-const customerService = require('../services/customer.service');
-const shipService = require('../services/ship.service');
 
 class AuthService {
-    generateProviderAccessToken(providerId, accessType) {
+    generateUserAccessToken(userId, accessType) {
         let token = JSON.stringify({
-            providerId: providerId,
+            userId: userId,
             access: accessType,
-            expiredTime: dateTimeHelper.addMinuteFromNow(appConfig.providerToken.expiresIn)
+            expiredTime: dateTimeHelper.addMinuteFromNow(appConfig.userToken.expiresIn)
         });
 
         return encryptionHelper.encrypt(token);
     }
 
-    generateBookAccessToken(bookId, customerId, providerId, botName) {
+    generateBookAccessToken(bookId, customerId, userId, botName) {
         let token = JSON.stringify({
             bookId: bookId,
             customerId: customerId,
-            providerId: providerId,
+            userId: userId,
             botName: botName,
             expiredTime: dateTimeHelper.addMinuteFromNow(appConfig.accessToken.expiresIn)
         });
         return encryptionHelper.encrypt(token);
     }
 
-    generateShipAccessToken(providerId, customerId, shipId, botName) {
+    generateShipAccessToken(userId, customerId, shipId, botName) {
         let token = JSON.stringify({
             customerId: customerId,
-            providerId: providerId,
+            userId: userId,
             botName: botName,
             shipId: shipId,
             expiredTime: dateTimeHelper.addMinuteFromNow(appConfig.accessToken.expiresIn)
@@ -75,33 +73,33 @@ class AuthService {
         };
     }
 
-    loginProvider(username, password) {
+    login(username, password) {
         return new Promise((resolve, reject) => {
             let query = {
                 username: username.toLowerCase(),
                 password: passwordHelper.hash(username.toLowerCase(), password)
             };
-            Provider.findOne(query)
-                .exec((err, provider) => {
-                    if (provider && provider.isActive) {
+            User.findOne(query)
+                .exec((err, user) => {
+                    if (user && user.isActive) {
                         let access = 'auth';
-                        let token = this.generateProviderAccessToken(provider._id, access);
+                        let token = this.generateUserAccessToken(user._id, access);
                         var p = {
-                            username: provider.username,
-                            name: provider.name,
-                            email: provider.email,
-                            tel: provider.tel,
-                            address: provider.address,
-                            background: provider.background,
+                            username: user.username,
+                            name: user.name,
+                            email: user.email,
+                            tel: user.tel,
+                            address: user.address,
+                            background: user.background,
                             accessToken: token,
                         };
-                        let tokens = provider.tokens;
+                        let tokens = user.tokens;
                         tokens.push({
                             access,
                             token
                         })
-                        provider.tokens = tokens;
-                        provider.save().then(() => resolve(p));
+                        user.tokens = tokens;
+                        user.save().then(() => resolve(p));
 
                     } else {
                         resolve(false);
@@ -110,15 +108,15 @@ class AuthService {
         });
     }
 
-    logout(providerId, tokenStr) {
+    logout(userId, tokenStr) {
         return new Promise((resolve, reject) => {
-            Provider.findById(providerId)
-                .then(provider => {
-                    if (provider && provider.tokens && provider.tokens.length > 0) {
-                        provider.tokens = provider.tokens.filter(function (item) {
+            User.findById(userId)
+                .then(user => {
+                    if (user && user.tokens && user.tokens.length > 0) {
+                        user.tokens = user.tokens.filter(function (item) {
                             return item.token != tokenStr;
                         })
-                        provider.save().then(() => resolve({
+                        user.save().then(() => resolve({
                             success: true
                         }));
                     } else {
@@ -130,17 +128,17 @@ class AuthService {
         })
     }
 
-    generateProviderActionAPIToken(customerId, providerId, botName) {
+    generateUserActionAPIToken(customerId, userId, botName) {
         let token = JSON.stringify({
             customerId: customerId,
-            providerId: providerId,
+            userId: userId,
             botName: botName,
             expiredTime: dateTimeHelper.addMinuteFromNow(appConfig.accessToken.expiresIn)
         });
         return encryptionHelper.encrypt(token);
     }
 
-    verifyProviderAndCustomerFromToken(encryptedTokenStr) {
+    verifyUserAndCustomerFromToken(encryptedTokenStr) {
         return new Promise((resolve, reject) => {
             try {
                 if (!encryptedTokenStr) {
@@ -166,7 +164,7 @@ class AuthService {
                     });
                 }
 
-                var providerPromise = providerService.getById(tokenObject.providerId);
+                var providerPromise = providerService.getById(tokenObject.userId);
                 var customerPromise = customerService.getById(tokenObject.customerId);
                 Promise.all([providerPromise, customerPromise])
                     .then(([provider, customer]) => {
@@ -222,7 +220,7 @@ class AuthService {
                         status: 400
                     });
                 } else {
-                    var getProviderPromise = providerService.getProviderWithMenuById(tokenObject.providerId);
+                    var getProviderPromise = userService.getUserWithMenuById(tokenObject.userId);
                     var getCustomerPromise = customerService.getById(tokenObject.customerId);
                     Promise.all([getProviderPromise, getCustomerPromise])
                         .then(([rs, customer]) => {

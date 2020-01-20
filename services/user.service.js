@@ -1,31 +1,28 @@
 const mongoose = require('mongoose');
 const passwordHelper = require('../helpers/password.helper');
-const Provider = mongoose.model('Provider');
+const User = mongoose.model('User');
 const constants = require('../common/constants');
 const MessageConstants = constants.MessageConstants;
-const Menu = mongoose.model('Menu');
 const fs = require('fs');
-let configs = [];
 
-class ProviderService {
+class UserService {
     register(host, p) {
         return new Promise((resolve, reject) => {
             fs.readFile('temp/default_sp.json', 'utf8', function (err, data) {
                 if (err) throw err;
                 let sp = JSON.parse(data);
                 var username = p.username.toLowerCase();
-                Provider.findOne({
+                User.findOne({
                     username: username
                 })
-                    .then(provider => {
-                        if (provider != null) {
+                    .then(user => {
+                        if (user != null) {
                             return resolve({
                                 result: false,
                                 message: MessageConstants.UsernameExistingError
                             })
                         } else {
-                            let provider = new Provider({
-                                name: p.name,
+                            let user = new User({
                                 username: username,
                                 password: passwordHelper.hash(username, p.password),
                                 email: p.email,
@@ -39,7 +36,7 @@ class ProviderService {
                                 createdAt: new Date()
                             });
 
-                            provider.save().then(() => {
+                            user.save().then(() => {
                                 // informm to sp
                                 resolve({
                                     success: true,
@@ -55,11 +52,11 @@ class ProviderService {
 
     checkUsername(username) {
         return new Promise((resolve, reject) => {
-            Provider.findOne({
+            User.findOne({
                 username: username
             })
-                .then(provider => {
-                    if (provider) {
+                .then(user => {
+                    if (user) {
                         resolve({ success: false, message: MessageConstants.UsernameExistingError })
                     } else {
                         resolve({ success: true })
@@ -71,16 +68,16 @@ class ProviderService {
 
     verify(username, code) {
         return new Promise((resolve, reject) => {
-            Provider.findOne({
+                User.findOne({
                 username: username,
             })
-                .then(provider => {
-                    if (provider == null) {
+                .then(user => {
+                    if (user == null) {
                         resolve(MessageConstants.LinkNotExistingError)
                     } else {
-                        if (!provider.isActive) {
-                            provider.isActive = true;
-                            provider.save().then(() => {
+                        if (!user.isActive) {
+                            user.isActive = true;
+                            user.save().then(() => {
                                 resolve(MessageConstants.VerifyEmailSuccessfully);
                             }).catch(err => reject(err));
                         } else {
@@ -95,67 +92,56 @@ class ProviderService {
     }
 
     getAll() {
-        return new Promise((resolve, reject) => Provider.find()
-            .then(providers => resolve(providers))
+        return new Promise((resolve, reject) => User.find()
+            .then(users => resolve(users))
             .catch(err => reject(err)));
     }
 
     getByUsername(username) {
         return new Promise((resolve, reject) => {
-            Provider.findOne({
+            User.findOne({
                 username: username
             })
-                .then(provider => {
-                    resolve(provider)
+                .then(user => {
+                    resolve(user)
                 })
                 .catch(err => reject(err));
         });
     }
 
-    getByFanpageId(fanpageId) {
-        return new Promise((resolve, reject) => {
-            Provider.findOne({
-                fanpageId: fanpageId
-            })
-                .then(provider => {
-                    resolve(provider)
-                })
-                .catch(err => reject(err));
-        });
-    }
 
     async getById(id) {
         try {
-            let provider = await Provider.findById(id);
-            return provider;
+            let user = await User.findById(id);
+            return user;
         } catch (error) {
         }
     }
 
 
-    addOrUpdate(provider) {
+    addOrUpdate(user) {
         return new Promise((resolve, reject) => {
             let query = {
-                _id: provider._id
+                _id: user._id
             };
             let options = {
                 upsert: true
             };
-            Provider.findOneAndUpdate(query, provider, options)
+            User.findOneAndUpdate(query, user, options)
                 .then(cus => resolve(cus))
                 .catch(err => reject(err));
         });
     }
 
-    updateBackground(providerId, bgName) {
+    updateBackground(userId, bgName) {
         return new Promise((resolve, reject) => {
             let query = {
-                _id: providerId
+                _id: userId
             };
             let options = {
                 upsert: true
             };
-            Provider.findOneAndUpdate(query, {
+            User.findOneAndUpdate(query, {
                 background: bgName
             }, options)
                 .then(cus => resolve(cus))
@@ -165,22 +151,22 @@ class ProviderService {
 
     getById(id) {
         return new Promise((resolve, reject) => {
-            Provider.findById(id)
-                .then(provider => resolve(provider))
+            User.findById(id)
+                .then(user => resolve(user))
                 .catch(err => reject(err));
         });
     }
 
-    addDeviceToken(providerId, data) {
+    addDeviceToken(userId, data) {
         let deviceToken = data.deviceToken;
         return new Promise((resolve, reject) => {
-            Provider.findById(providerId)
-                .then(provider => {
-                    if (provider.deviceTokens) {
-                        if (provider.deviceTokens.indexOf(deviceToken) < 0) {
+            User.findById(userId)
+                .then(user => {
+                    if (user.deviceTokens) {
+                        if (user.deviceTokens.indexOf(deviceToken) < 0) {
                             {
-                                provider.deviceTokens.push(deviceToken);
-                                provider.save().then(() => resolve({
+                                user.deviceTokens.push(deviceToken);
+                                user.save().then(() => resolve({
                                     success: true, message: "Device token was added successfully"
                                 }));
                             }
@@ -190,8 +176,8 @@ class ProviderService {
                             });
                         }
                     } else {
-                        provider.deviceTokens = [deviceToken];
-                        provider.save().then(() => resolve({
+                        user.deviceTokens = [deviceToken];
+                        user.save().then(() => resolve({
                             success: true, message: "Device token was added successfully"
                         }));
                     }
@@ -200,17 +186,16 @@ class ProviderService {
         });
     }
 
-    updateInfo(providerId, p) {
+    updateInfo(userId, p) {
         return new Promise((resolve, reject) => {
-            Provider.findById(providerId)
-                .then(provider => {
-                    if (p.name) provider.name = p.name;
-                    if (p.email) provider.email = p.email;
-                    if (p.tel) provider.tel = p.tel;
-                    if (p.address) provider.address = p.address;
-                    if (p.background) provider.background = p.background;
-                    if (p.password) provider.password = p.password;
-                    provider.save().then(() => resolve({
+            User.findById(userId)
+                .then(user => {
+                    if (p.email) user.email = p.email;
+                    if (p.tel) user.tel = p.tel;
+                    if (p.address) user.address = p.address;
+                    if (p.background) user.background = p.background;
+                    if (p.password) user.password = p.password;
+                    user.save().then(() => resolve({
                         success: true
                     }));
                 })
@@ -219,10 +204,10 @@ class ProviderService {
     }
 
 
-    async  checkPassword(providerId, password) {
-        const provider = await Provider.findById(providerId).select('username password');
-        const encryptPassword = passwordHelper.hash(provider.username, password);
-        if (encryptPassword == provider.password) {
+    async  checkPassword(userId, password) {
+        const user = await User.findById(userId).select('username password');
+        const encryptPassword = passwordHelper.hash(user.username, password);
+        if (encryptPassword == user.password) {
             return { success: true }
         } else {
             return { success: false }
@@ -230,13 +215,13 @@ class ProviderService {
     }
 
     async  checkUserNameExist(usernameInput) {
-        var provider = await Provider.findOne({ username: usernameInput.toLowerCase() })
-        if (provider != null) {
+        var user = await User.findOne({ username: usernameInput.toLowerCase() })
+        if (user != null) {
             const randomNumber = this.randomStringNumberForResetPassword();
-            provider.resetPasswordCodes.push({ code: randomNumber, createdAt: new Date() })
-            await provider.save()
-            if (provider.email)
-                this.sentMailResetPasswordToProvider(provider.email, provider.name, provider.username, randomNumber);
+            user.resetPasswordCodes.push({ code: randomNumber, createdAt: new Date() })
+            await user.save()
+            if (user.email)
+                this.sentMailResetPasswordToUser(user.email, user.name, user.username, randomNumber);
             return {
                 success: true
             }
@@ -246,9 +231,9 @@ class ProviderService {
     }
 
     async  checkCodeResetPassword(userName, code) {
-        var provider = await Provider.findOne({ username: userName.toLowerCase() });
-        if (provider != null) {
-            let resetPasswordCodes = provider.resetPasswordCodes;
+        var user = await User.findOne({ username: userName.toLowerCase() });
+        if (user != null) {
+            let resetPasswordCodes = user.resetPasswordCodes;
             const lastCode = resetPasswordCodes[resetPasswordCodes.length - 1];
             if (code == lastCode.code) {
                 return {
@@ -259,15 +244,15 @@ class ProviderService {
         return { success: false }
     }
 
-    async updatePassword(providerId, newPassword, oldPassword) {
-        const check = await this.checkPassword(providerId, oldPassword);
+    async updatePassword(userId, newPassword, oldPassword) {
+        const check = await this.checkPassword(userId, oldPassword);
         if (check.success) {
             return new Promise((resolve, reject) => {
-                Provider.findById(providerId)
-                    .then(provider => {
-                        const encryptPassword = passwordHelper.hash(provider.username, newPassword);
-                        if (encryptPassword) provider.password = encryptPassword;
-                        provider.save().then(() => resolve({
+                User.findById(userId)
+                    .then(user => {
+                        const encryptPassword = passwordHelper.hash(user.username, newPassword);
+                        if (encryptPassword) user.password = encryptPassword;
+                        user.save().then(() => resolve({
                             success: true
                         }));
                     })
@@ -280,11 +265,11 @@ class ProviderService {
         const check = await this.checkCodeResetPasswordValid(userName, code);
         if (check) {
             return new Promise((resolve, reject) => {
-                Provider.findOne({ username: userName.toLowerCase() })
-                    .then(provider => {
-                        const encryptPassword = passwordHelper.hash(provider.username, newPassword);
-                        if (encryptPassword) provider.password = encryptPassword;
-                        provider.save().then(() => resolve({
+                User.findOne({ username: userName.toLowerCase() })
+                    .then(user => {
+                        const encryptPassword = passwordHelper.hash(user.username, newPassword);
+                        if (encryptPassword) user.password = encryptPassword;
+                        user.save().then(() => resolve({
                             success: true
                         }));
                     })
@@ -294,9 +279,9 @@ class ProviderService {
     }
 
     async checkCodeResetPasswordValid(userName, code) {
-        var provider = await Provider.findOne({ username: userName.toLowerCase() });
-        if (provider && provider.resetPasswordCodes) {
-            const resetPasswordCodes = provider.resetPasswordCodes;
+        var user = await User.findOne({ username: userName.toLowerCase() });
+        if (user && user.resetPasswordCodes) {
+            const resetPasswordCodes = user.resetPasswordCodes;
             const lastCode = resetPasswordCodes[resetPasswordCodes.length - 1];
             const offsetTime = 30 * 60 * 1000;
             const currentDate = new Date();
@@ -318,21 +303,9 @@ class ProviderService {
         return numbers.join('');
     }
 
-    sentMailResetPasswordToProvider(email, providerName, providerUsename, numberReset) {
-        mailHelper.sentEmailResetPasswordToProvider(email, providerName, providerUsename, numberReset);
+    sentMailResetPasswordToUser(email, userName, userUsename, numberReset) {
+        mailHelper.sentEmailResetPasswordToUser(email, userName, userUsename, numberReset);
     }
 
-    getProviderWithMenuById(id) {
-        return new Promise((resolve, reject) => {
-            const menuPromise = Menu.find({ provider: id, isDeleted: false })
-                .sort({ name: 1 })
-            const providerPromise = Provider.findById(id)
-
-            Promise.all([menuPromise, providerPromise])
-                .then(([rs, provider]) => {
-                    resolve({ provider, menus: rs })
-                });
-        });
-    }
 }
-module.exports = new ProviderService()
+module.exports = new UserService()

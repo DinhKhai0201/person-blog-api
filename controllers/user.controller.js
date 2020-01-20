@@ -1,18 +1,16 @@
-const ProviderService = require('../services/provider.service');
+const UserService = require('../services/user.service');
 const fileService = require('../services/file.service');
-const bookService = require('../services/book.service');
-const shipService = require('../services/ship.service');
 
-class ProviderController {
+class UserController {
     async addDeviceToken(req, res, next) {
-        ProviderService.addDeviceToken(req.body.id, req.body)
+        UserService.addDeviceToken(req.body.id, req.body)
             .then((success) => res.json(success))
             .catch(err => next(err));
     }
 
-    async getProviderById(req, res) {
-        const provider = await ProviderService.getById(req.body.id);
-        res.json(provider)
+    async getUserById(req, res) {
+        const user = await UserService.getById(req.body.id);
+        res.json(user)
     }
 
     async uploadImge(req, res, next) {
@@ -21,38 +19,38 @@ class ProviderController {
         }).catch(err => next(err));
     }
 
-    async updateProvider(req, res) {
-        ProviderService.updateInfo(req.body.id, req.body.providerInf).then(data => {
+    async updateUser(req, res) {
+        UserService.updateInfo(req.body.id, req.body.userInf).then(data => {
             res.json(data)
         })
     }
 
     async checkPassword(req, res) {
-        ProviderService.checkPassword(req.body.id, req.query.password).then(data => {
+        UserService.checkPassword(req.body.id, req.query.password).then(data => {
             res.json(data);
         })
     }
 
     async checkUserNameExist(req, res) {
-        ProviderService.checkUserNameExist(req.query.username).then(data => {
+        UserService.checkUserNameExist(req.query.username).then(data => {
             res.json(data);
         })
     }
 
     async checkCodeResetPassword(req, res) {
-        ProviderService.checkCodeResetPassword(req.query.username, req.query.code).then(data => {
+        UserService.checkCodeResetPassword(req.query.username, req.query.code).then(data => {
             res.json(data);
         })
     }
 
     async updatePassword(req, res) {
-        ProviderService.updatePassword(req.body.id, req.body.newPassword, req.body.oldPassword).then(data => {
+        UserService.updatePassword(req.body.id, req.body.newPassword, req.body.oldPassword).then(data => {
             res.json(data)
         })
     }
 
     async resetPassword(req, res) {
-        ProviderService.resetPassword(req.body.username, req.body.newPassword, req.body.code).then(data => {
+        UserService.resetPassword(req.body.username, req.body.newPassword, req.body.code).then(data => {
             res.json(data)
         })
     }
@@ -119,7 +117,7 @@ class ProviderController {
     }
 
     // addDeviceToken(req, res, next) {
-    //     providerService.addDeviceToken(req.body.id, req.body)
+    //     UserService.addDeviceToken(req.body.id, req.body)
     //         .then((success) => res.json(success))
     //         .catch(err => next(err));
     // }
@@ -137,5 +135,5 @@ class ProviderController {
     }
 
 }
-module.exports = new ProviderController()
+module.exports = new UserController()
 

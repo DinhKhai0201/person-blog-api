@@ -1,8 +1,6 @@
 module.exports = {
-    uri: "mongodb://ngohaihue:Cogang0901161704@ds349455.mlab.com:49455/doan",
+    uri: "mongodb://localhost:27017/node1",
     options: {
-        user: 'ngohaihue',
-        pass: 'Cogang0901161704',
         useMongoClient: true
     }
 };

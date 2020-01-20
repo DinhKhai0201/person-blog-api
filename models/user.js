@@ -1,8 +1,7 @@
 const mongoose = require("mongoose"),
     Schema = mongoose.Schema;
 
-const providerSchema = new Schema({
-    name: String,
+const userSchema = new Schema({
     username: String,
     password: String,
     email: String,
@@ -10,13 +9,6 @@ const providerSchema = new Schema({
     address: String,
     background: String,
     isActive: { type: Boolean, default: false },
-    aboutUs: String,
-    fanpageId: String,
-    isActivedBot: { type: Boolean, default: false },
-    botToken: {
-        appId: String,
-        appPassword: String
-    },
     tokens: [{
         access: {
             type: String,
@@ -28,19 +20,13 @@ const providerSchema = new Schema({
         }
     }],
     deviceTokens: [{ type: String, default: [] }],
-    lang: String,
-    currency: { type: Schema.Types.ObjectId, ref: 'Currency' },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
-    gps: {
-        lat: String,
-        lng: String,
-    }
 }, {
         usePushEach: true
     }, {
-        collection: "providers"
+        collection: "users"
     });
 
-mongoose.model("Provider", providerSchema);
+mongoose.model("User", userSchema);
 
