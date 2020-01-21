@@ -10,6 +10,7 @@ const userSchema = new Schema({
     background: String,
     isActive: { type: Boolean, default: false },
     coin: { type: String, default: 0 },
+    role: { type: String, default: 0 },
     tokens: [{
         access: {
             type: String,

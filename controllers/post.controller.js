@@ -1,5 +1,4 @@
 const PostService = require('../services/post.service');
-const fileService = require('../services/file.service');
 
 class PostController {
     getAll(req, res, next) {
@@ -16,14 +15,21 @@ class PostController {
     
     getPostById(req, res, next) {
         PostService.getPostById(req.query.id)
-            .then(item => {
-                res.json(item)
+            .then(post => {
+                res.json(post)
             })
             .catch(err => next(err));
     }
     
+    getMyPost(req, res, next) {
+        PostService.getMyPost(req.body.id)
+            .then(post => {
+                res.json(post)
+            })
+            .catch(err => next(err));
+    }
+
     addOrUpdatePost(req, res, next) {
-        console.log(req);
         PostService.addOrUpdatePost(req.body.id, req.query.act, req.body)
             .then((success) => res.json(success))
             .catch(err => next(err));
@@ -38,6 +44,11 @@ class PostController {
     deletePostById(req, res, next) {
         PostService.deletePostById(req.body.id, req.query.id)
             .then(rs => res.json(rs))
+            .catch(err => next(err));
+    }
+    updateActive(req, res, next) {
+        PostService.updateActive(req.body.id, req.query.id)
+            .then(post => res.json(post))
             .catch(err => next(err));
     }
 

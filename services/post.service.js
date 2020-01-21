@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const Post = mongoose.model('Post');
+const User = mongoose.model('User');
 const constants = require('../common/constants');
 const MessageConstants = constants.MessageConstants;
+const FormActions = constants.FormActions;
+const cloudinaryService = require('../services/cloudinary.service');
 const fs = require('fs');
 
 class PostService {
@@ -16,7 +19,7 @@ class PostService {
         });
     }
     
-    getById(id) {
+    getPostById(id) {
         return new Promise((resolve, reject) => {
             Post.findOne({
                 _id: id
@@ -26,38 +29,38 @@ class PostService {
         });
     }
     
-    addOrUpdatePost(userId, act, data) {
+    addOrUpdatePost(userId, act, item) {
         return new Promise((resolve, reject) => {
-            if (appConfig.stage == 'dev') {
-                if (data.item && data.item.oldThumbnail) {
-                    var pathImage = path.join(__dirname, '../public') + '/img/upload/menu/' + data.item.oldThumbnail;
-                    if (fs.existsSync(pathImage)) {
-                        fs.unlink(pathImage, (err) => {
-                            if (err) throw err;
-                            console.log(pathImage, ' was deleted');
-                        });
-                    }
-                }
-            }
-            if (appConfig.stage == 'prod') {
-                let imgNameWithoutExtention = data.item.oldThumbnail && data.item.oldThumbnail.split('.').length > 0 ? data.item.oldThumbnail.split('.')[0] : '';
-                if (imgNameWithoutExtention) {
-                    let public_id = `menu/${imgNameWithoutExtention}`;
-                    cloudinaryService.delete(public_id);
-                }
-            }
-            Post.findById(userId)
+            // if (appConfig.stage == 'dev') {
+            //     if (item && item.oldThumbnail) {
+            //         var pathImage = path.join(__dirname, '../public') + '/img/upload/menu/' + item.oldThumbnail;
+            //         if (fs.existsSync(pathImage)) {
+            //             fs.unlink(pathImage, (err) => {
+            //                 if (err) throw err;
+            //                 console.log(pathImage, ' was deleted');
+            //             });
+            //         }
+            //     }
+            // }
+            // if (appConfig.stage == 'prod') {
+            //     let imgNameWithoutExtention = item.oldThumbnail && item.oldThumbnail.split('.').length > 0 ? data.item.oldThumbnail.split('.')[0] : '';
+            //     if (imgNameWithoutExtention) {
+            //         let public_id = `menu/${imgNameWithoutExtention}`;
+            //         cloudinaryService.delete(public_id);
+            //     }
+            // }
+            User.findById(userId)
                 .populate('user')
                 .then(user => {
-                    let newItem = data.item;
+                    let newItem = item;
                     if ((newItem._id == undefined && act != FormActions.UpdateMany) || act == FormActions.Copy || ids.length == 0) {
                         newItem._id = mongoose.Types.ObjectId();
                         newItem.userId = userId;
     
-                        Post.insertMany([newItem])
+                        Post.insertMany(newItem)
                             .then(() => resolve({
                                 success: true
-                            }));
+                            })).catch(err => reject(err));
                     } else {
                         var updateObj = {};
                         if (newItem.title != undefined) updateObj.title = newItem.title;
@@ -67,20 +70,16 @@ class PostService {
                         if (newItem.category != undefined) updateObj.category = newItem.category;
     
                         Post.update({
-                            _id: {
-                                $in: ids
-                            },
+                            _id: newItem.id,
                             userId: userId
-                        }, updateObj, {
-                                multi: true
-                            })
+                        }, updateObj)
                             .then(() => {
                                 resolve({
                                     success: true
                                 })
-                            })
+                            }).catch(err => reject(err));
                     }
-                })
+                }).catch(err => reject(err));
         });
     }
     
@@ -123,7 +122,7 @@ class PostService {
         });
     }
     
-    deletePostById (userId, postId) {
+    deletePostById(userId, postId) {
         return new Promise((resolve, reject) => {
             Post.findOneAndUpdate({
                 userId: userId,
@@ -132,13 +131,6 @@ class PostService {
                     isDeleted: true
                 })
                 .then((post) => {
-                    if (appConfig.stage == 'prod') {
-                        let imgNameWithExtention = post.thumbnail && post.thumbnail.split('.').length > 0 ? post.thumbnail.split('.')[0] : '';
-                        if (imgNameWithExtention) {
-                            let public_id = `post/${imgNameWithExtention}`;
-                            cloudinaryService.delete(public_id);
-                        }
-                    }
                     resolve({
                         success: true,
                         messsage: MessageConstants.SavedSuccessfully
@@ -147,6 +139,22 @@ class PostService {
         });
     }
     
+    updateActive(userId, postId) {
+        return new Promise((resolve, reject) => {
+            Post.findOneAndUpdate({
+                userId: userId,
+                _id: postId
+            }, {
+                    isActive: true
+                })
+                .then((post) => {
+                    resolve({
+                        success: true,
+                        messsage: MessageConstants.SavedSuccessfully
+                    })
+                })
+        });
+    }
     
     checkPostName(userId, postName, postId) {
         return new Promise((resolve, reject) => {

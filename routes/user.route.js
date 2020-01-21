@@ -14,5 +14,6 @@ Router.get('/', AuthController.authorizeServiceUser, UserController.getUserById)
 Router.post('/', AuthController.authorizeServiceUser, UserController.updateUser)
 Router.post('/password/reset', UserController.resetPassword);
 Router.post('/image/upload', UserController.uploadImge);
-
+// post
+Router.post('/changeActive', AuthController.authorizeServiceUser, PostController.updateActive)
 module.exports = Router;
