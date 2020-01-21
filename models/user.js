@@ -9,6 +9,7 @@ const userSchema = new Schema({
     address: String,
     background: String,
     isActive: { type: Boolean, default: false },
+    coin: { type: String, default: 0 },
     tokens: [{
         access: {
             type: String,

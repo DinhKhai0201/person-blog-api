@@ -1,5 +1,5 @@
 module.exports = {
-    uri: "mongodb://localhost:27017/node1",
+    uri: "mongodb://localhost:27017/api1",
     options: {
         useMongoClient: true
     }

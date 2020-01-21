@@ -6,5 +6,9 @@ module.exports = [
     {
         path: '/user',
         router: 'routes/user.route'
+    },
+    {
+        path: '/post',
+        router: 'routes/post.route'
     }
 ];

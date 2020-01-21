@@ -1,8 +1,9 @@
 const Router = require('express').Router();
 const AuthController = require('../controllers/auth.controller');
 const UserController = require('../controllers/user.controller');
+const PostController = require('../controllers/post.controller');
 
-Router.get('/logout', AuthController.authorizeServiceUser, AuthController.logout);
+Router.get('/logout', AuthController.authorizeServiceUser, AuthController.logout); //
 Router.post('/deviceToken/add', AuthController.authorizeServiceUser, UserController.addDeviceToken);
 
 Router.get('/password', AuthController.authorizeServiceUser, UserController.checkPassword)

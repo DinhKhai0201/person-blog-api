@@ -2,10 +2,10 @@ const routeConfig = require('../configs/route.config');
 
 module.exports = {
     env: {
-        port: process.env.PORT || 3000,
+        port: process.env.PORT || 4002,
         host: process.env.HOST || 'localhost'
     },
-    root: "http://localhost:",
+    root: "http://localhost:4002",
     file: {
         models: 'models/*.js',
         controllers: 'controllers/*.js',

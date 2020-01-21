@@ -60,7 +60,7 @@ module.exports.MessageConstants = {
     NotAllowAcceptOrRefuseInprogressBook: "Cannot accept or refuse inprogress book",
     QRCodeUsed: "This QR code was used",
     NoActivePromotion: "No active promotion",
-    MenuNameExistingError: "Menu is existing",
+    NameExistingError: "Name is existing",
 }
 
 
