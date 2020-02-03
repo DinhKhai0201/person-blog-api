@@ -5,6 +5,7 @@ const PostController = require('../controllers/post.controller');
 Router.get('/all', PostController.getAll);
 Router.get('/getItem', PostController.getPostById);
 Router.get('/my', AuthController.authorizeServiceUser, PostController.getMyPost);
+Router.post('/incView', PostController.increaseView);
 
 Router.post('/addOrUpdate', AuthController.authorizeServiceUser, PostController.addOrUpdatePost);
 Router.post('/delete',AuthController.authorizeServiceUser, PostController.deletePostById);

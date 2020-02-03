@@ -10,5 +10,9 @@ module.exports = [
     {
         path: '/post',
         router: 'routes/post.route'
+    },
+    {
+        path: '/category',
+        router: 'routes/category.route'
     }
 ];

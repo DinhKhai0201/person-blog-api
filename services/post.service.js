@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
-const Post = mongoose.model('Post');
-const User = mongoose.model('User');
-const constants = require('../common/constants');
-const MessageConstants = constants.MessageConstants;
-const FormActions = constants.FormActions;
-const cloudinaryService = require('../services/cloudinary.service');
-const fs = require('fs');
+const mongoose = require('mongoose'),
+    Post = mongoose.model('Post'),
+    User = mongoose.model('User'),
+    constants = require('../common/constants'),
+    MessageConstants = constants.MessageConstants,
+    FormActions = constants.FormActions,
+    cloudinaryService = require('../services/cloudinary.service'),
+    fs = require('fs');
 
 class PostService {
     getAll() {
@@ -22,7 +22,9 @@ class PostService {
     getPostById(id) {
         return new Promise((resolve, reject) => {
             Post.findOne({
-                _id: id
+                _id: id,
+                isActive: true,
+                isDeleted: false
             })
                 .then(post => resolve(post))
                 .catch(err => reject(err));
@@ -154,8 +156,26 @@ class PostService {
                     })
                 })
         });
-    }
+    } 
     
+    increaseView(postId, view) {
+        return new Promise((resolve, reject) => {
+            Post.findOneAndUpdate({
+                _id: postId,
+                isActive: true,
+                isDeleted: false
+            }, {
+                    view: view
+                })
+                .then((post) => {
+                    resolve({
+                        success: true,
+                        messsage: MessageConstants.SavedSuccessfully
+                    })
+                })
+        });
+    } 
+
     checkPostName(userId, postName, postId) {
         return new Promise((resolve, reject) => {
             Post.findOne({

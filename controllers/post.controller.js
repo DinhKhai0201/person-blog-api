@@ -51,6 +51,11 @@ class PostController {
             .then(post => res.json(post))
             .catch(err => next(err));
     }
+    increaseView(req, res, next) {
+        PostService.increaseView(req.query.id, req.query.view)
+            .then(post => res.json(post))
+            .catch(err => next(err));
+    }
 
 }
 module.exports = new PostController()

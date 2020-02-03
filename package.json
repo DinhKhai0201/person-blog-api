@@ -58,6 +58,7 @@
     "serve-favicon": "^2.4.5",
     "shuffle-array": "^1.0.1",
     "shuffle-seed": "^1.1.6",
+    "socket.io": "^2.3.0",
     "string-format": "^2.0.0",
     "universal-analytics": "^0.4.17",
     "uuid": "^3.2.1",

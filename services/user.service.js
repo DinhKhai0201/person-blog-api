@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
-const passwordHelper = require('../helpers/password.helper');
-const User = mongoose.model('User');
-const constants = require('../common/constants');
-const MessageConstants = constants.MessageConstants;
-const fs = require('fs');
+const mongoose = require('mongoose'),
+    passwordHelper = require('../helpers/password.helper'),
+    User = mongoose.model('User'),
+    constants = require('../common/constants'),
+    MessageConstants = constants.MessageConstants,
+    fs = require('fs');
 
 class UserService {
     register(host, p) {

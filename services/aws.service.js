@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const fs = require('fs')
+const fs = require('fs');
 const BUCKET_NAME = 'doancnpm';
 const IAM_USER_KEY = 'AKIAJBXPZ2OWWQ5GXWEA';
 const IAM_USER_SECRET = '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';
