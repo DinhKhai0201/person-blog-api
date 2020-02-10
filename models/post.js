@@ -7,7 +7,7 @@ const postSchema = new Schema({
     content: { type: String, required: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User'},
     tag: String,
-    category:String,
+    categoryId: { type: Schema.Types.ObjectId, ref: 'Category', default: null},
     isActive: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
     view: { type: String, default: 0 },

@@ -48,7 +48,7 @@ class CategoryService {
         });
     }
 
-    addOrUpdateCategory(act, item) {
+    addOrUpdateCategory(user, act, item) {
         return new Promise((resolve, reject) => {
             // if (appConfig.stage == 'dev') {
             //     if (item && item.oldThumbnail) {
@@ -69,6 +69,7 @@ class CategoryService {
             //     }
             // }
             let newItem = item;
+            console.log(newItem);
             if ((newItem._id == undefined && act != FormActions.UpdateMany) || act == FormActions.Copy || ids.length == 0) {
                 newItem._id = mongoose.Types.ObjectId();
                 Category.insertMany(newItem)
