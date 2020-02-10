@@ -39,7 +39,7 @@ class UserService {
                             user.save().then(() => {
                                 // informm to sp
                                 resolve({
-                                    success: true,
+                                    result: true,
                                     message: MessageConstants.RegisterSuccessfully
                                 });
                             }).catch(err => reject(err));
