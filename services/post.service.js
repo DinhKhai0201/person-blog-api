@@ -21,11 +21,12 @@ class PostService {
     
     getPostById(id) {
         return new Promise((resolve, reject) => {
+            console.log("asdasdasd");
             Post.findOne({
                 _id: id,
                 isActive: true,
                 isDeleted: false
-            })
+            }).populate('categories')
                 .then(post => resolve(post))
                 .catch(err => reject(err));
         });
@@ -33,17 +34,17 @@ class PostService {
     
     addOrUpdatePost(userId, act, item) {
         return new Promise((resolve, reject) => {
-            // if (appConfig.stage == 'dev') {
-            //     if (item && item.oldThumbnail) {
-            //         var pathImage = path.join(__dirname, '../public') + '/img/upload/menu/' + item.oldThumbnail;
-            //         if (fs.existsSync(pathImage)) {
-            //             fs.unlink(pathImage, (err) => {
-            //                 if (err) throw err;
-            //                 console.log(pathImage, ' was deleted');
-            //             });
-            //         }
-            //     }
-            // }
+            if (appConfig.stage == 'dev') {
+                if (item && item.oldThumbnail) {
+                    var pathImage = path.join(__dirname, '../public') + '/img/upload/post/' + item.oldThumbnail;
+                    if (fs.existsSync(pathImage)) {
+                        fs.unlink(pathImage, (err) => {
+                            if (err) throw err;
+                            console.log(pathImage, ' was deleted');
+                        });
+                    }
+                }
+            }
             // if (appConfig.stage == 'prod') {
             //     let imgNameWithoutExtention = item.oldThumbnail && item.oldThumbnail.split('.').length > 0 ? data.item.oldThumbnail.split('.')[0] : '';
             //     if (imgNameWithoutExtention) {
@@ -160,6 +161,12 @@ class PostService {
     
     increaseView(postId, view) {
         return new Promise((resolve, reject) => {
+            if (!postId) {
+                reject({
+                    error: false,
+                    messsage: MessageConstants.SomethingGoesWrong
+                })
+            }
             Post.findOneAndUpdate({
                 _id: postId,
                 isActive: true,
