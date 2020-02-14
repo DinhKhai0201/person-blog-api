@@ -21,7 +21,7 @@ class PostService {
     
     getPostById(id) {
         return new Promise((resolve, reject) => {
-            console.log("asdasdasd");
+            console.log("category");
             Post.findOne({
                 _id: id,
                 isActive: true,

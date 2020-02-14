@@ -23,7 +23,6 @@ module.exports.initStatic = (app) => {
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(cookieParser());
     app.use(busboy());
-    // app.use(bodyParser.json())
     app.use("/public", express.static(path.join(__dirname, '../public')));
 }
 
@@ -40,7 +39,7 @@ module.exports.initHandleException = (app) => {
         if (err.type != undefined && err.type == 'json') {
             res.status(err.status || 500).send(err);
         } else {
-            console.log(err.message); // For debugging in future.
+            console.log(err.message);
             res.locals.message = err.message;
             res.status(err.status || 500);
             res.render('error', {

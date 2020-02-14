@@ -1,4 +1,5 @@
 const mongoose = require("mongoose"),
+    Joi = require('joi'),
     Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -28,7 +29,32 @@ const userSchema = new Schema({
         usePushEach: true
     }, {
         collection: "users"
-    });
+});
+// const userValidation = (user) => {
+//     const schema = Joi.object().keys({
+//         username: Joi.string().required().min(6),
+//         password: Joi.string().required().regex(/^[a-zA-Z0-9]{3,30}$/),
+//         address: Joi.string(),
+//         background: Joi.string(),
+//         tel: Joi.string().required().regex(/^[0-9]{9,11}$/),
+//         email: Joi.string().email({ minDomainAtoms: 2 })
+
+//     })
+//     return Joi.validate(user, schema, { abortEarly: false });
+// }
+    
+// const updateUserValidation = (user) => {
+//     const schema = Joi.object().keys({
+//         username: Joi.string().required().min(6),
+//         password: Joi.string().required().regex(/^[a-zA-Z0-9]{3,30}$/),
+//         address: Joi.string(),
+//         background: Joi.string(),
+//         tel: Joi.string().regex(/^[0-9]{9,11}$/),
+//         email: Joi.string().email({ minDomainAtoms: 2 })
+
+//     })
+//     return Joi.validate(user, schema, { abortEarly: false });
+// }
 
 mongoose.model("User", userSchema);
 
