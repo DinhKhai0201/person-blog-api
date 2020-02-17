@@ -5,6 +5,8 @@ const mongoose = require('mongoose'),
     MessageConstants = constants.MessageConstants,
     FormActions = constants.FormActions,
     cloudinaryService = require('../services/cloudinary.service'),
+    Joi = require('joi'),
+    appConfig = require('../configs/app.config'),
     fs = require('fs');
 
 class PostService {
@@ -27,6 +29,7 @@ class PostService {
                 isActive: true,
                 isDeleted: false
             }).populate('categories')
+                .exec()
                 .then(post => resolve(post))
                 .catch(err => reject(err));
         });
@@ -52,6 +55,18 @@ class PostService {
             //         cloudinaryService.delete(public_id);
             //     }
             // }
+            /* validation */
+            const validate = Joi.validate(item, {
+                title: Joi.string().required(),
+                slug: Joi.string().required(),
+                content: Joi.any(),
+                category: Joi.any().required()
+            });
+            if(validate.error){
+                return  resolve({
+                            message: validate.error.details[0].message
+                        });
+            }
             User.findById(userId)
                 .populate('user')
                 .then(user => {
