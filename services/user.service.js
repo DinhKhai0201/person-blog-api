@@ -12,6 +12,20 @@ class UserService {
                 if (err) throw err;
                 let sp = JSON.parse(data);
                 var username = p.username.toLowerCase();
+                const validate = Joi.validate(p, {
+                    username: Joi.string().required().min(6),
+                    password: Joi.string().required().min(6),
+                    email: Joi.string().email({ minDomainAtoms: 2 }),
+                    address: Joi.string(),
+                    tel: Joi.string(),
+                    background: Joi.string(),
+                    isActive: Joi.boolean()
+                });
+                if(validate.error){
+                    return  resolve({
+                                message: validate.error.details[0].message
+                            });
+                }
                 User.findOne({
                     username: username
                 })
