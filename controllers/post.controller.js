@@ -24,7 +24,13 @@ class PostController {
             })
             .catch(err => next(err));
     }
-    
+    searchPost(req, res, next) {
+        PostService.searchPost(req.query.keyword)
+            .then(post => {
+                res.json(post)
+            })
+            .catch(err => next(err));
+    }
     getMyPost(req, res, next) {
         PostService.getMyPost(req.body.id)
             .then(post => {

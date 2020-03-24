@@ -1,8 +1,9 @@
 const mongoose = require("mongoose"),
+aggregatePaginate = require('mongoose-aggregate-paginate-v2'),
     Schema = mongoose.Schema;
 
 const postSchema = new Schema({
-    title: { type: String, required: true },
+    title: { type: String, required: true ,text: true },
     slug: { type: String, required: true },
     content: { type: String, required: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User'},
@@ -18,6 +19,6 @@ const postSchema = new Schema({
     }, {
         collection: "posts"
     });
-
+postSchema.plugin(aggregatePaginate);
 mongoose.model("Post", postSchema);
 

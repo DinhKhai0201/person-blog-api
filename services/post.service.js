@@ -16,11 +16,25 @@ class PostService {
                 isActive: true,
                 isDeleted: false
             }).populate("categoryId")
-            .then(post => resolve(post))
-            .catch(err => reject(err));
+                .then(post => resolve(post))
+                .catch(err => reject(err));
         });
     }
-    
+    searchPost(keyword) {
+        return new Promise((resolve, reject) => {
+            console.log(keyword);
+            Post.find({
+                title: { $regex: keyword },
+                isActive: true,
+                isDeleted: false
+            },
+                { score: { $meta: "textScore" } }).populate("categoryId")
+                .sort({ score: { $meta: "textScore" } })
+                .then(post => resolve(post))
+                .catch(err => reject(err));
+        });
+    }
+
     getPostById(id) {
         return new Promise((resolve, reject) => {
             console.log("category");
@@ -72,10 +86,10 @@ class PostService {
                 content: Joi.any(),
                 category: Joi.any().required()
             });
-            if(validate.error){
-                return  resolve({
-                            message: validate.error.details[0].message
-                        });
+            if (validate.error) {
+                return resolve({
+                    message: validate.error.details[0].message
+                });
             }
             User.findById(userId)
                 .populate('user')
@@ -84,7 +98,7 @@ class PostService {
                     if ((newItem._id == undefined && act != FormActions.UpdateMany) || act == FormActions.Copy || ids.length == 0) {
                         newItem._id = mongoose.Types.ObjectId();
                         newItem.userId = userId;
-    
+
                         Post.insertMany(newItem)
                             .then(() => resolve({
                                 success: true
@@ -96,11 +110,11 @@ class PostService {
                         if (newItem.content != undefined) updateObj.content = newItem.content;
                         if (newItem.tag != undefined) updateObj.tag = newItem.tag;
                         if (newItem.category != undefined) updateObj.category = newItem.category;
-    
+
                         Post.update({
                             _id: newItem.id,
                             userId: userId,
-                            updatedAt: new Date() 
+                            updatedAt: new Date()
                         }, updateObj)
                             .then(() => {
                                 resolve({
@@ -111,14 +125,14 @@ class PostService {
                 }).catch(err => reject(err));
         });
     }
-    
+
     getMyPost(userId) {
         return new Promise((resolve, reject) => {
             var query = {
                 userId: userId,
                 isDeleted: false
             }
-    
+
             Post.find(query)
                 .sort({
                     title: 1
@@ -129,9 +143,9 @@ class PostService {
                 });
         })
     }
-    
-    
-    deletePost (userId, data) {
+
+
+    deletePost(userId, data) {
         return new Promise((resolve, reject) => {
             Post.update({
                 _id: {
@@ -139,10 +153,10 @@ class PostService {
                 },
                 userId: userId
             }, {
-                    isDeleted: true
-                }, {
-                    multi: true
-                })
+                isDeleted: true
+            }, {
+                multi: true
+            })
                 .then(() => {
                     resolve({
                         success: true
@@ -150,15 +164,15 @@ class PostService {
                 })
         });
     }
-    
+
     deletePostById(userId, postId) {
         return new Promise((resolve, reject) => {
             Post.findOneAndUpdate({
                 userId: userId,
                 _id: postId
             }, {
-                    isDeleted: true
-                })
+                isDeleted: true
+            })
                 .then((post) => {
                     resolve({
                         success: true,
@@ -167,15 +181,15 @@ class PostService {
                 })
         });
     }
-    
+
     updateActive(userId, postId) {
         return new Promise((resolve, reject) => {
             Post.findOneAndUpdate({
                 userId: userId,
                 _id: postId
             }, {
-                    isActive: true
-                })
+                isActive: true
+            })
                 .then((post) => {
                     resolve({
                         success: true,
@@ -183,8 +197,8 @@ class PostService {
                     })
                 })
         });
-    } 
-    
+    }
+
     increaseView(postId, view) {
         return new Promise((resolve, reject) => {
             if (!postId) {
@@ -198,8 +212,8 @@ class PostService {
                 isActive: true,
                 isDeleted: false
             }, {
-                    view: view
-                })
+                view: view
+            })
                 .then((post) => {
                     resolve({
                         success: true,
@@ -207,7 +221,7 @@ class PostService {
                     })
                 })
         });
-    } 
+    }
 
     checkPostName(userId, postName, postId) {
         return new Promise((resolve, reject) => {
