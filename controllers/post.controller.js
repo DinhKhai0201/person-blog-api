@@ -12,7 +12,11 @@ class PostController {
             .then(post => res.json(post))
             .catch(err => next(err));
     }
-    
+    getPostByCat(req, res, next) {
+        PostService.getPostByCat(req.query.id)
+            .then(post => res.json(post))
+            .catch(err => next(err));
+    }
     getPostById(req, res, next) {
         PostService.getPostById(req.query.id)
             .then(post => {

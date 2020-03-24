@@ -12,7 +12,7 @@ class CategoryService {
         return new Promise((resolve, reject) => {
             Category.find({
                 isDeleted: false
-            })
+            }).populate("parentId")
                 .then(category => resolve(category))
                 .catch(err => reject(err));
         });
@@ -31,7 +31,7 @@ class CategoryService {
         return new Promise((resolve, reject) => {
             Category.find({
                 parentId: null
-            }).populate("categories")
+            }).populate("parentId")
                 .then(category => resolve(category))
                 .catch(err => reject(err));
         });
@@ -42,7 +42,7 @@ class CategoryService {
             Category.findOne({
                 _id: id,
                 isDeleted: false
-            })
+            }).populate("parentId")
                 .then(category => resolve(category))
                 .catch(err => reject(err));
         });

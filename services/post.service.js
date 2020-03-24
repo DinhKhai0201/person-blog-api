@@ -15,9 +15,9 @@ class PostService {
             Post.find({
                 isActive: true,
                 isDeleted: false
-            })
-                .then(post => resolve(post))
-                .catch(err => reject(err));
+            }).populate("categoryId")
+            .then(post => resolve(post))
+            .catch(err => reject(err));
         });
     }
     
@@ -28,13 +28,23 @@ class PostService {
                 _id: id,
                 isActive: true,
                 isDeleted: false
-            }).populate('categories')
-                .exec()
+            }).populate("categoryId")
                 .then(post => resolve(post))
                 .catch(err => reject(err));
         });
     }
-    
+    getPostByCat(id) {
+        return new Promise((resolve, reject) => {
+            console.log("cat");
+            Post.findOne({
+                categoryId: id,
+                isActive: true,
+                isDeleted: false
+            }).populate("categoryId")
+                .then(post => resolve(post))
+                .catch(err => reject(err));
+        });
+    }
     addOrUpdatePost(userId, act, item) {
         return new Promise((resolve, reject) => {
             if (appConfig.stage == 'dev') {
@@ -89,7 +99,8 @@ class PostService {
     
                         Post.update({
                             _id: newItem.id,
-                            userId: userId
+                            userId: userId,
+                            updatedAt: new Date() 
                         }, updateObj)
                             .then(() => {
                                 resolve({
