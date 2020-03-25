@@ -44,7 +44,6 @@ class UserService {
                                 address: p.address,
                                 coin: 0,
                                 background: '',
-                                criterion: sp.criterion,
                                 isActive: false,
                                 lang: p.lang,
                                 createdAt: new Date()
@@ -104,13 +103,36 @@ class UserService {
                 .catch(err => reject(err));
         });
     }
-
-    getAll() {
-        return new Promise((resolve, reject) => User.find()
-            .then(users => resolve(users))
+    
+    getAll(limit,pageCur) {
+        let  perPage = limit || 1 ;
+        let  page = pageCur || 1 ;
+        return new Promise((resolve, reject) => {
+            User.find({
+                isActive: true
+            }).skip((perPage * page) - perPage)
+            .limit(perPage)
+            .populate("categoryId")
+            .exec(function(err, user) {
+                User.count({
+                    isActive: true
+                }).exec(function(err, count) {
+                    if (err) return reject(err) ;
+                    return resolve({
+                        data: user,
+                        current: page,
+                        pages: Math.ceil(count / perPage)
+                    })
+                   
+                })
+            })
+        });
+    } 
+    countUser() {
+        return new Promise((resolve, reject) => User.count({})
+            .then(count => resolve(count))
             .catch(err => reject(err)));
     }
-
     getByUsername(username) {
         return new Promise((resolve, reject) => {
             User.findOne({

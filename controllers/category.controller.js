@@ -1,12 +1,17 @@
 const CategoryService = require('../services/category.service');
 
 class CategoryController {
+  
     getAll(req, res, next) {
-        CategoryService.getAll()
+        CategoryService.getAll(req.query.limit,req.query.page)
             .then(posts => res.json(posts))
             .catch(err => next(err));
     }
-    
+    countCategory(req, res, next) {
+        CategoryService.countCategory()
+            .then(count => res.json(count))
+            .catch(err => next(err));
+    }
     getCategoryById(req, res, next) {
         CategoryService.getCategoryById(req.query.id)
             .then(post => {

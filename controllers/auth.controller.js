@@ -94,11 +94,14 @@ class AuthController {
                             res.json(err);
                         } else {
                             data = Object.assign({}, data, {
-                                name: user.name,
+                                username: user.username,
+                                role: user.role,
+                                coin: user.coin,
                                 email: user.email,
                                 tel: user.tel,
                                 address: user.address,
                                 background: user.background,
+                                lang: user.lang,
                             })
 
                             res.json(data);

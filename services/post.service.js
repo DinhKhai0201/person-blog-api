@@ -10,14 +10,30 @@ const mongoose = require('mongoose'),
     fs = require('fs');
 
 class PostService {
-    getAll() {
+    getAll(limit,pageCur) {
+        let  perPage = limit || 1 ;
+        let  page = pageCur || 1 ;
         return new Promise((resolve, reject) => {
             Post.find({
                 isActive: true,
                 isDeleted: false
-            }).populate("categoryId")
-                .then(post => resolve(post))
-                .catch(err => reject(err));
+            }).skip((perPage * page) - perPage)
+            .limit(perPage)
+            .populate("categoryId")
+            .exec(function(err, post) {
+                Post.count({
+                    isActive: true,
+                    isDeleted: false
+                }).exec(function(err, count) {
+                    if (err) return reject(err) ;
+                    return resolve({
+                        data: post,
+                        current: page,
+                        pages: Math.ceil(count / perPage)
+                    })
+                   
+                })
+            })
         });
     }
     searchPost(keyword) {
@@ -144,7 +160,11 @@ class PostService {
         })
     }
 
-
+    countPost() {
+        return new Promise((resolve, reject) => Post.count({})
+            .then(count => resolve(count))
+            .catch(err => reject(err)));
+    }
     deletePost(userId, data) {
         return new Promise((resolve, reject) => {
             Post.update({

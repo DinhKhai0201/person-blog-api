@@ -2,11 +2,15 @@ const PostService = require('../services/post.service');
 
 class PostController {
     getAll(req, res, next) {
-        PostService.getAll()
+        PostService.getAll(req.query.limit,req.query.page)
             .then(posts => res.json(posts))
             .catch(err => next(err));
     }
-
+    countPost(req, res, next) {
+        PostService.countPost()
+            .then(count => res.json(count))
+            .catch(err => next(err));
+    }
     getPost(req, res, next) {
         PostService.getPost(req.body.id)
             .then(post => res.json(post))

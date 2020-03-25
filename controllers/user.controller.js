@@ -7,7 +7,16 @@ class UserController {
             .then((success) => res.json(success))
             .catch(err => next(err));
     }
-
+    countUser(req, res, next) {
+        UserService.countUser()
+            .then(count => res.json(count))
+            .catch(err => next(err));
+    }
+    getAll(req, res, next) {
+        UserService.getAll(req.query.limit,req.query.page)
+            .then(posts => res.json(posts))
+            .catch(err => next(err));
+    }
     async getUserById(req, res) {
         const user = await UserService.getById(req.body.id);
         res.json(user)

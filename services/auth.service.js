@@ -85,12 +85,13 @@ class AuthService {
                         let access = 'auth';
                         let token = this.generateUserAccessToken(user._id, access);
                         var p = {
+                            role: user.role,
                             username: user.username,
-                            name: user.name,
                             email: user.email,
                             tel: user.tel,
                             address: user.address,
                             background: user.background,
+                            coin:user.coin, 
                             accessToken: token,
                         };
                         let tokens = user.tokens;

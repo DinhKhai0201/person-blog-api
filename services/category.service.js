@@ -17,7 +17,30 @@ class CategoryService {
                 .catch(err => reject(err));
         });
     }
-
+    getAll(limit,pageCur) {
+        let  perPage = limit || 1 ;
+        let  page = pageCur || 1 ;
+        return new Promise((resolve, reject) => {
+            Category.find({
+                isDeleted: false
+            }).skip((perPage * page) - perPage)
+            .limit(perPage)
+            .populate("categoryId")
+            .exec(function(err, category) {
+                Category.count({
+                    isDeleted: false
+                }).exec(function(err, count) {
+                    if (err) return reject(err) ;
+                    return resolve({
+                        data: category,
+                        current: page,
+                        pages: Math.ceil(count / perPage)
+                    })
+                   
+                })
+            })
+        });
+    }
     getParentCategory() {
         return new Promise((resolve, reject) => {
             Category.find({
@@ -96,8 +119,12 @@ class CategoryService {
 
         });
     }
-
-
+    
+    countCategory() {
+        return new Promise((resolve, reject) => Category.count({})
+            .then(count => resolve(count))
+            .catch(err => reject(err)));
+    }
     deleteCategoryById(categoryId) {
         return new Promise((resolve, reject) => {
             Category.findOneAndUpdate({

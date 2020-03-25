@@ -22,6 +22,7 @@ const userSchema = new Schema({
             required: true
         }
     }],
+    lang: { type: String, default: 'vi' },
     deviceTokens: [{ type: String, default: [] }],
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
