@@ -27,7 +27,8 @@ class CategoryService {
                     return resolve({
                         data: category,
                         current: page,
-                        pages: Math.ceil(count / perPage)
+                        pages: Math.ceil(count / perPage),
+                        number: count
                     })
                    
                 })

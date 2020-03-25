@@ -124,9 +124,9 @@ class UserService {
         }
         let  perPage = parseInt(limit || 1) ;
         let  page = parseInt(pageCur || 1 );
-        console.log(typeof perPage)
         return new Promise((resolve, reject) => {
-            User.find(option).skip((perPage * page) - perPage)
+
+            User.find(option,{username: 1,email: 1,tel: 1,address: 1,background: 1,isActive:1,coin: 1,role: 1}).skip((perPage * page) - perPage)
             .limit(perPage)
             .populate("categoryId")
             .exec(function(err, user) {
@@ -135,7 +135,8 @@ class UserService {
                     return resolve({
                         data: user,
                         current: page,
-                        pages: Math.ceil(count / perPage)
+                        pages: Math.ceil(count / perPage),
+                        number: count
                     })
                    
                 })

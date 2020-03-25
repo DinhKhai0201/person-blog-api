@@ -30,7 +30,8 @@ class PostService {
                     return resolve({
                         data: post,
                         current: page,
-                        pages: Math.ceil(count / perPage)
+                        pages: Math.ceil(count / perPage),
+                        number: count
                     })
                    
                 })
