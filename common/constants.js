@@ -36,6 +36,7 @@ module.exports.MessageConstants = {
     SomethingGoesWrong: "Oops, something goes wrong",
     RegisterSuccessfully: "Register successfully, please verify your email before login",
     UsernameExistingError: "Username is existing",
+    NotAllowChangeActive: "Not allow change active",
     EmailExistingError: "Email is existing",
     FCMNotificationItemTypes: "Oops, your link is not existing",
     VerifyEmailSuccessfully: "Verify email successfully. Thanks for be our partner",

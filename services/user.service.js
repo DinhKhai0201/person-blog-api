@@ -115,20 +115,22 @@ class UserService {
         });
     }
     
-    getAll(limit,pageCur) {
+    getAll(limit,pageCur,type) {
+        let option = {
+            isActive: true
+        }
+        if (parseInt(type) == 1) { //admin
+            option = {}
+        }
         let  perPage = parseInt(limit || 1) ;
         let  page = parseInt(pageCur || 1 );
         console.log(typeof perPage)
         return new Promise((resolve, reject) => {
-            User.find({
-                isActive: true
-            }).skip((perPage * page) - perPage)
+            User.find(option).skip((perPage * page) - perPage)
             .limit(perPage)
             .populate("categoryId")
             .exec(function(err, user) {
-                User.count({
-                    isActive: true
-                }).exec(function(err, count) {
+                User.count(option).exec(function(err, count) {
                     if (err) return reject(err) ;
                     return resolve({
                         data: user,

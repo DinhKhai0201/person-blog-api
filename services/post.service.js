@@ -10,21 +10,22 @@ const mongoose = require('mongoose'),
     fs = require('fs');
 
 class PostService {
-    getAll(limit,pageCur) {
+    getAll(limit,pageCur, type) {
+        let option = {
+            isActive: true,
+            isDeleted: false
+        }
+        if (parseInt(type) == 1) { //admin
+            option = {}
+        }
         let  perPage = parseInt(limit || 1) ;
         let  page = parseInt(pageCur || 1) ;
         return new Promise((resolve, reject) => {
-            Post.find({
-                isActive: true,
-                isDeleted: false
-            }).skip((perPage * page) - perPage)
+            Post.find(option).skip((perPage * page) - perPage)
             .limit(perPage)
             .populate("categoryId")
             .exec(function(err, post) {
-                Post.count({
-                    isActive: true,
-                    isDeleted: false
-                }).exec(function(err, count) {
+                Post.count(option).exec(function(err, count) {
                     if (err) return reject(err) ;
                     return resolve({
                         data: post,
@@ -204,18 +205,33 @@ class PostService {
 
     updateActive(userId, postId) {
         return new Promise((resolve, reject) => {
-            Post.findOneAndUpdate({
-                userId: userId,
-                _id: postId
-            }, {
-                isActive: true
-            })
-                .then((post) => {
-                    resolve({
-                        success: true,
-                        messsage: MessageConstants.SavedSuccessfully
-                    })
+            User.findOne({_id: userId})
+                .then(user => {
+                    if (user != null) {
+                        console.log(user.role)
+                        if (user.role == 1) { //role =1 admin
+                            let value = Post.findOne({ _id: postId});
+                            Post.update({
+                                _id: postId
+                            }, {
+                                isActive: true
+                            })
+                                .then((post) => {
+                                    resolve({
+                                        success: true,
+                                        messsage: MessageConstants.SavedSuccessfully
+                                    })
+                                })
+                        } else {
+                            resolve({
+                                success: false,
+                                messsage: MessageConstants.NotAllowChangeActive
+                            })
+                        }
+                    }
                 })
+                .catch(err => reject(err));
+           
         });
     }
 

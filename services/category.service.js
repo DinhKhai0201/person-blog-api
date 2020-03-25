@@ -8,19 +8,21 @@ const mongoose = require('mongoose'),
     fs = require('fs');
 
 class CategoryService {
-    getAll(limit,pageCur) {
+    getAll(limit,pageCur,type) {
+        let option = {
+            isDeleted: false
+        }
+        if (parseInt(type) == 1) { //admin
+            option = {}
+        }
         let  perPage = parseInt(limit || 1) ;
         let  page = parseInt(pageCur || 1) ;
         return new Promise((resolve, reject) => {
-            Category.find({
-                isDeleted: false
-            }).skip((perPage * page) - perPage)
+            Category.find(option).skip((perPage * page) - perPage)
             .limit(perPage)
             .populate("categoryId")
             .exec(function(err, category) {
-                Category.count({
-                    isDeleted: false
-                }).exec(function(err, count) {
+                Category.count(option).exec(function(err, count) {
                     if (err) return reject(err) ;
                     return resolve({
                         data: category,

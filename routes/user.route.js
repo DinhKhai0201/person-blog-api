@@ -13,8 +13,8 @@ Router.get('/password', AuthController.authorizeServiceUser, UserController.chec
 Router.get('/username', AuthController.authorizeServiceUser, UserController.checkUserNameExist)
 Router.get('/code', UserController.checkCodeResetPassword)
 Router.post('/password', AuthController.authorizeServiceUser, UserController.updatePassword)
-Router.get('/', AuthController.authorizeServiceUser, UserController.getUserById);
-Router.post('/', AuthController.authorizeServiceUser, UserController.updateUser)
+Router.get('/getById', AuthController.authorizeServiceUser, UserController.getUserById);
+Router.post('/update', AuthController.authorizeServiceUser, UserController.updateUser)
 Router.post('/password/reset', UserController.resetPassword);
 Router.post('/image/upload', UserController.uploadImge);
 // post

@@ -3,7 +3,7 @@ const CategoryService = require('../services/category.service');
 class CategoryController {
   
     getAll(req, res, next) {
-        CategoryService.getAll(req.query.limit,req.query.page)
+        CategoryService.getAll(req.query.limit,req.query.page,req.query.type)
             .then(posts => res.json(posts))
             .catch(err => next(err));
     }
