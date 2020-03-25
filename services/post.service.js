@@ -11,8 +11,8 @@ const mongoose = require('mongoose'),
 
 class PostService {
     getAll(limit,pageCur) {
-        let  perPage = limit || 1 ;
-        let  page = pageCur || 1 ;
+        let  perPage = parseInt(limit || 1) ;
+        let  page = parseInt(pageCur || 1) ;
         return new Promise((resolve, reject) => {
             Post.find({
                 isActive: true,

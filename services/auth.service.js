@@ -17,29 +17,6 @@ class AuthService {
 
         return encryptionHelper.encrypt(token);
     }
-
-    generateBookAccessToken(bookId, customerId, userId, botName) {
-        let token = JSON.stringify({
-            bookId: bookId,
-            customerId: customerId,
-            userId: userId,
-            botName: botName,
-            expiredTime: dateTimeHelper.addMinuteFromNow(appConfig.accessToken.expiresIn)
-        });
-        return encryptionHelper.encrypt(token);
-    }
-
-    generateShipAccessToken(userId, customerId, shipId, botName) {
-        let token = JSON.stringify({
-            customerId: customerId,
-            userId: userId,
-            botName: botName,
-            shipId: shipId,
-            expiredTime: dateTimeHelper.addMinuteFromNow(appConfig.accessToken.expiresIn)
-        });
-        return encryptionHelper.encrypt(token);
-    }
-
     verifyAccessToken(accessToken) {
         if (!accessToken) return null;
         let token = encryptionHelper.decrypt(accessToken);
@@ -181,87 +158,6 @@ class AuthService {
                             });
                         }
                     })
-            } catch (e) {
-                let err = {
-                    message: "Internal server error. Error: " + e,
-                    status: 500
-                }
-                return reject(err);
-            }
-        });
-    }
-
-    verifyShipToken(encryptedTokenStr) {
-        return new Promise((resolve, reject) => {
-            try {
-                if (!encryptedTokenStr) {
-                    return reject({
-                        message: "The token is invalid.",
-                        status: 400
-                    });
-                }
-
-                let tokenStr = encryptionHelper.decrypt(encryptedTokenStr);
-                if (!tokenStr || tokenStr == null) {
-                    return reject({
-                        message: "The token is invalid.",
-                        status: 400
-                    });
-                }
-
-                let tokenObject = JSON.parse(tokenStr);
-                if (!tokenObject) {
-                    return reject({
-                        message: "The token is invalid.",
-                        status: 400
-                    });
-                } else if (new Date(tokenObject.expiredTime).getTime() < new Date().getTime()) {
-                    return reject({
-                        message: "The token is expired.",
-                        status: 400
-                    });
-                } else {
-                    var getProviderPromise = userService.getUserWithMenuById(tokenObject.userId);
-                    var getCustomerPromise = customerService.getById(tokenObject.customerId);
-                    Promise.all([getProviderPromise, getCustomerPromise])
-                        .then(([rs, customer]) => {
-                            if (!rs.provider) {
-                                return reject({
-                                    message: "The provider is not found.",
-                                    status: 400
-                                });
-                            }
-                            if (!customer) {
-                                let err = {
-                                    message: "The customer is not found.",
-                                    status: 400
-                                }
-                                return reject(err);
-                            }
-                            if (tokenObject.shipId !== undefined) {
-                                shipService.getById(tokenObject.shipId)
-                                    .then(ship => {
-                                        // ship.botName = tokenObject.botName;
-                                        return resolve({
-                                            provider: rs.provider,
-                                            menus: rs.menus,
-                                            customer: customer,
-                                            ship: ship
-                                        });
-                                    }).catch(err => console.log(err));
-                            } else {
-                                shipService.create(rs.provider, customer).then(ship => {
-                                    // ship.botName = tokenObject.botName;
-                                    return resolve({
-                                        provider: rs.provider,
-                                        customer: customer,
-                                        menus: rs.menus,
-                                        ship: ship
-                                    });
-                                });
-                            }
-                        });
-                }
             } catch (e) {
                 let err = {
                     message: "Internal server error. Error: " + e,

@@ -8,18 +8,9 @@ const mongoose = require('mongoose'),
     fs = require('fs');
 
 class CategoryService {
-    getAll() {
-        return new Promise((resolve, reject) => {
-            Category.find({
-                isDeleted: false
-            }).populate("parentId")
-                .then(category => resolve(category))
-                .catch(err => reject(err));
-        });
-    }
     getAll(limit,pageCur) {
-        let  perPage = limit || 1 ;
-        let  page = pageCur || 1 ;
+        let  perPage = parseInt(limit || 1) ;
+        let  page = parseInt(pageCur || 1) ;
         return new Promise((resolve, reject) => {
             Category.find({
                 isDeleted: false
@@ -73,24 +64,24 @@ class CategoryService {
 
     addOrUpdateCategory(user, act, item) {
         return new Promise((resolve, reject) => {
-            // if (appConfig.stage == 'dev') {
-            //     if (item && item.oldThumbnail) {
-            //         var pathImage = path.join(__dirname, '../public') + '/img/upload/menu/' + item.oldThumbnail;
-            //         if (fs.existsSync(pathImage)) {
-            //             fs.unlink(pathImage, (err) => {
-            //                 if (err) throw err;
-            //                 console.log(pathImage, ' was deleted');
-            //             });
-            //         }
-            //     }
-            // }
-            // if (appConfig.stage == 'prod') {
-            //     let imgNameWithoutExtention = item.oldThumbnail && item.oldThumbnail.split('.').length > 0 ? data.item.oldThumbnail.split('.')[0] : '';
-            //     if (imgNameWithoutExtention) {
-            //         let public_id = `menu/${imgNameWithoutExtention}`;
-            //         cloudinaryService.delete(public_id);
-            //     }
-            // }
+            if (appConfig.stage == 'dev') {
+                if (item && item.oldThumbnail) {
+                    var pathImage = path.join(__dirname, '../public') + '/img/upload/menu/' + item.oldThumbnail;
+                    if (fs.existsSync(pathImage)) {
+                        fs.unlink(pathImage, (err) => {
+                            if (err) throw err;
+                            console.log(pathImage, ' was deleted');
+                        });
+                    }
+                }
+            }
+            if (appConfig.stage == 'prod') {
+                let imgNameWithoutExtention = item.oldThumbnail && item.oldThumbnail.split('.').length > 0 ? data.item.oldThumbnail.split('.')[0] : '';
+                if (imgNameWithoutExtention) {
+                    let public_id = `menu/${imgNameWithoutExtention}`;
+                    cloudinaryService.delete(public_id);
+                }
+            }
             let newItem = item;
             console.log(newItem);
             if ((newItem._id == undefined && act != FormActions.UpdateMany) || act == FormActions.Copy || ids.length == 0) {

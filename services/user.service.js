@@ -3,14 +3,15 @@ const mongoose = require('mongoose'),
     User = mongoose.model('User'),
     constants = require('../common/constants'),
     MessageConstants = constants.MessageConstants,
+    Joi = require('joi'),
     fs = require('fs');
 
 class UserService {
     register(host, p) {
         return new Promise((resolve, reject) => {
-            fs.readFile('temp/default_sp.json', 'utf8', function (err, data) {
-                if (err) throw err;
-                let sp = JSON.parse(data);
+            // fs.readFile('temp/default_sp.json', 'utf8', function (err, data) {
+                // if (err) throw err;
+                // let sp = JSON.parse(data);
                 var username = p.username.toLowerCase();
                 const validate = Joi.validate(p, {
                     username: Joi.string().required().min(6),
@@ -23,17 +24,18 @@ class UserService {
                 });
                 if(validate.error){
                     return  resolve({
+                                status: false,
                                 message: validate.error.details[0].message
                             });
                 }
                 User.findOne({
-                    username: username
+                    email: p.email
                 })
                     .then(user => {
                         if (user != null) {
                             return resolve({
                                 result: false,
-                                message: MessageConstants.UsernameExistingError
+                                message: MessageConstants.EmailExistingError
                             })
                         } else {
                             let user = new User({
@@ -59,7 +61,7 @@ class UserService {
                         }
                     })
                     .catch(err => reject(err));
-            });
+            // });
         });
     }
 
@@ -79,22 +81,31 @@ class UserService {
         });
     }
 
-    verify(username, code) {
+    verify(email, code) {
         return new Promise((resolve, reject) => {
                 User.findOne({
-                username: username,
+                    email: email,
             })
                 .then(user => {
                     if (user == null) {
-                        resolve(MessageConstants.LinkNotExistingError)
+                        resolve({
+                            status: false,
+                            message: MessageConstants.LinkNotExistingError
+                        })
                     } else {
                         if (!user.isActive) {
                             user.isActive = true;
                             user.save().then(() => {
-                                resolve(MessageConstants.VerifyEmailSuccessfully);
+                                resolve({
+                                    status: true, 
+                                    message: MessageConstants.VerifyEmailSuccessfully
+                                });
                             }).catch(err => reject(err));
                         } else {
-                            resolve(MessageConstants.EmailVerified);
+                            resolve({
+                                status: false,
+                                message: MessageConstants.EmailVerified
+                            });
                         }
 
 
@@ -105,8 +116,9 @@ class UserService {
     }
     
     getAll(limit,pageCur) {
-        let  perPage = limit || 1 ;
-        let  page = pageCur || 1 ;
+        let  perPage = parseInt(limit || 1) ;
+        let  page = parseInt(pageCur || 1 );
+        console.log(typeof perPage)
         return new Promise((resolve, reject) => {
             User.find({
                 isActive: true
@@ -129,7 +141,7 @@ class UserService {
         });
     } 
     countUser() {
-        return new Promise((resolve, reject) => User.count({})
+        return new Promise((resolve, reject) => User.count({isActive: true})
             .then(count => resolve(count))
             .catch(err => reject(err)));
     }

@@ -71,7 +71,7 @@ class AuthController {
     }
 
     verify(req, res, next) {
-        userService.verify(req.query.username, req.query.code).then(rs => {
+        userService.verify(req.query.email, req.query.code).then(rs => {
             res.json(rs);
         }).catch(err => next(err));
     }
