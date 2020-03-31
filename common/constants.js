@@ -79,7 +79,7 @@ module.exports.FormActions = {
     Add: "add",
     Copy: "copy",
     Delete: "delete",
-    UpdateMany: "updateMany"
+    Update: "update"
 }
 
 module.exports.CurrencyCode = {

@@ -1,12 +1,4 @@
 const cloudinary = require('cloudinary').v2;
-// const keySecretConfig = require('../configs/keySecret.config');
-
-// cloudinary.config({
-//     cloud_name: keySecretConfig.cloudinary.cloud_name,
-//     api_key: keySecretConfig.cloudinary.api_key,
-//     api_secret: keySecretConfig.cloudinary.api_secret
-// })
-
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,

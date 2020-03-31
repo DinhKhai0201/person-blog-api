@@ -12,4 +12,5 @@ Router.get('/countPost', PostController.countPost)
 
 Router.post('/addOrUpdate', AuthController.authorizeServiceUser, PostController.addOrUpdatePost);
 Router.post('/delete',AuthController.authorizeServiceUser, PostController.deletePostById);
+Router.post('/deleteMany',AuthController.authorizeServiceUser, PostController.deletePost);
 module.exports = Router;

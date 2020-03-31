@@ -10,32 +10,34 @@ const mongoose = require('mongoose'),
     fs = require('fs');
 
 class PostService {
-    getAll(limit,pageCur, type) {
+    getAll(limit, pageCur, type) {
         let option = {
             isActive: true,
             isDeleted: false
         }
         if (parseInt(type) == 1) { //admin
-            option = {}
+            option = {
+                isDeleted: false
+            }
         }
-        let  perPage = parseInt(limit || 1) ;
-        let  page = parseInt(pageCur || 1) ;
+        let perPage = parseInt(limit || 1);
+        let page = parseInt(pageCur || 1);
         return new Promise((resolve, reject) => {
             Post.find(option).skip((perPage * page) - perPage)
-            .limit(perPage)
-            .populate("categoryId")
-            .exec(function(err, post) {
-                Post.count(option).exec(function(err, count) {
-                    if (err) return reject(err) ;
-                    return resolve({
-                        data: post,
-                        current: page,
-                        pages: Math.ceil(count / perPage),
-                        number: count
+                .limit(perPage)
+                .populate("categoryId")
+                .exec(function (err, post) {
+                    Post.count(option).exec(function (err, count) {
+                        if (err) return reject(err);
+                        return resolve({
+                            data: post,
+                            current: page,
+                            pages: Math.ceil(count / perPage),
+                            number: count
+                        })
+
                     })
-                   
                 })
-            })
         });
     }
     searchPost(keyword) {
@@ -58,7 +60,7 @@ class PostService {
             console.log("category");
             Post.findOne({
                 _id: id,
-                isActive: true,
+                // isActive: true,
                 isDeleted: false
             }).populate("categoryId")
                 .then(post => resolve(post))
@@ -102,44 +104,58 @@ class PostService {
                 title: Joi.string().required(),
                 slug: Joi.string().required(),
                 content: Joi.any(),
-                category: Joi.any().required()
+                tag: Joi.any(),
+                _id: Joi.any(),
+                isActive: Joi.boolean(),
+                id: Joi.any(),
+                background: Joi.any(),
+                categoryId: Joi.any().required()
             });
             if (validate.error) {
                 return resolve({
+                    success: false,
                     message: validate.error.details[0].message
                 });
             }
             User.findById(userId)
-                .populate('user')
                 .then(user => {
-                    let newItem = item;
-                    if ((newItem._id == undefined && act != FormActions.UpdateMany) || act == FormActions.Copy || ids.length == 0) {
-                        newItem._id = mongoose.Types.ObjectId();
-                        newItem.userId = userId;
+                    if (user && user.role == 1) {
+                        let newItem = item;
+                        if ((newItem._id == undefined && act != FormActions.Update) || act == FormActions.Copy) {
+                            newItem._id = mongoose.Types.ObjectId();
+                            newItem.userId = userId;
 
-                        Post.insertMany(newItem)
-                            .then(() => resolve({
-                                success: true
-                            })).catch(err => reject(err));
-                    } else {
-                        var updateObj = {};
-                        if (newItem.title != undefined) updateObj.title = newItem.title;
-                        if (newItem.slug != undefined) updateObj.slug = newItem.slug;
-                        if (newItem.content != undefined) updateObj.content = newItem.content;
-                        if (newItem.tag != undefined) updateObj.tag = newItem.tag;
-                        if (newItem.category != undefined) updateObj.category = newItem.category;
-
-                        Post.update({
-                            _id: newItem.id,
-                            userId: userId,
-                            updatedAt: new Date()
-                        }, updateObj)
-                            .then(() => {
-                                resolve({
+                            Post.insertMany(newItem)
+                                .then(() => resolve({
                                     success: true
-                                })
-                            }).catch(err => reject(err));
+                                })).catch(err => reject(err));
+                        } else {
+                            var updateObj = {};
+                            if (newItem.title != undefined) updateObj.title = newItem.title;
+                            if (newItem.slug != undefined) updateObj.slug = newItem.slug;
+                            if (newItem.content != undefined) updateObj.content = newItem.content;
+                            if (newItem.tag != undefined) updateObj.tag = newItem.tag;
+                            if (newItem.isActive != undefined) updateObj.isActive = newItem.isActive;
+                            if (newItem.categoryId != undefined) updateObj.categoryId = newItem.categoryId;
+                            updateObj.updatedAt = new Date();
+                            console.log(newItem._id);
+                            Post.update({
+                                _id: newItem._id,
+                                userId: userId
+                            }, updateObj)
+                                .then(() => {
+                                    resolve({
+                                        success: true,
+                                        data: {
+                                            ...updateObj,
+                                            _id: newItem._id,
+                                            userId: userId
+                                        }
+                                    })
+                                }).catch(err => reject(err));
+                        }
                     }
+
                 }).catch(err => reject(err));
         });
     }
@@ -150,7 +166,6 @@ class PostService {
                 userId: userId,
                 isDeleted: false
             }
-
             Post.find(query)
                 .sort({
                     title: 1
@@ -161,7 +176,6 @@ class PostService {
                 });
         })
     }
-
     countPost() {
         return new Promise((resolve, reject) => Post.count({})
             .then(count => resolve(count))
@@ -169,54 +183,71 @@ class PostService {
     }
     deletePost(userId, data) {
         return new Promise((resolve, reject) => {
-            Post.update({
-                _id: {
-                    $in: data.ids
-                },
-                userId: userId
-            }, {
-                isDeleted: true
-            }, {
-                multi: true
-            })
-                .then(() => {
-                    resolve({
-                        success: true
-                    })
+            User.findById(userId)
+                .then(user => {
+                    if (user&& user.role == 1) {
+                        Post.update({
+                            _id: {
+                                $in: data.ids
+                            },
+                        }, {
+                            isDeleted: true
+                        }, {
+                            multi: true
+                        })
+                            .then(() => {
+                                resolve({
+                                    success: true
+                                })
+                            })
+                    }
                 })
+
         });
     }
 
     deletePostById(userId, postId) {
         return new Promise((resolve, reject) => {
-            Post.findOneAndUpdate({
-                userId: userId,
-                _id: postId
-            }, {
-                isDeleted: true
-            })
-                .then((post) => {
-                    resolve({
-                        success: true,
-                        messsage: MessageConstants.SavedSuccessfully
-                    })
+            User.findById(userId)
+                .then(user => {
+                    if (user && user.role == 1) {
+                        Post.findOneAndUpdate({
+                            userId: userId,
+                            _id: postId
+                        }, {
+                            isDeleted: true
+                        })
+                            .then((post) => {
+                                resolve({
+                                    success: true,
+                                    messsage: MessageConstants.SavedSuccessfully
+                                })
+                            })
+                    }
                 })
+            
         });
     }
 
-    updateActive(userId, postId) {
+    updateActive(userId, postId,isActive) {
         return new Promise((resolve, reject) => {
-            User.findOne({_id: userId})
+            User.findOne({ _id: userId })
                 .then(user => {
                     if (user != null) {
-                        console.log(user.role)
                         if (user.role == 1) { //role =1 admin
-                            let value = Post.findOne({ _id: postId});
+                            // 0 is false, 1 is true
+                            let option = {
+                                isActive: true
+                            }
+                            if (isActive == 1) {
+                                option = {
+                                    isActive: false
+                                }
+                            }
+
                             Post.update({
                                 _id: postId
-                            }, {
-                                isActive: true
-                            })
+                            },option)
                                 .then((post) => {
                                     resolve({
                                         success: true,
@@ -232,7 +263,7 @@ class PostService {
                     }
                 })
                 .catch(err => reject(err));
-           
+
         });
     }
 
