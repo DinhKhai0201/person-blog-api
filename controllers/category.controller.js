@@ -42,7 +42,16 @@ class CategoryController {
             .then(rs => res.json(rs))
             .catch(err => next(err));
     }
-
+    deleteCategory(req, res, next) {
+        CategoryService.deleteCategory(req.body.id,req.body)
+            .then(rs => res.json(rs))
+            .catch(err => next(err));
+    }
+    updateActive(req, res, next) {
+        CategoryService.updateActive(req.body.id, req.query.id, req.query.isActive)
+            .then(user => res.json(user))
+            .catch(err => next(err));
+    }
 }
 module.exports = new CategoryController()
 

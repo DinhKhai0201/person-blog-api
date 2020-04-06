@@ -289,14 +289,14 @@ class UserService {
                             if (p.tel) userp.tel = p.tel;
                             if (p.address) userp.address = p.address;
                             if (p.background) userp.background = p.background;
-                            if (p.password) userp.password = passwordHelper.hash(p.email, p.password);
+                            // if (p.password) userp.password = passwordHelper.hash(p.email, p.password);
                             if (p.coin) userp.coin = p.coin;
                             if (p.role) userp.role = p.role;
                             if (p.isActive) userp.isActive = p.isActive;
                             userp.updatedAt = new Date();
                             const validate = Joi.validate(p, {
                                 username: Joi.string().required().min(6),
-                                password: Joi.string().required().min(6),
+                                // password: Joi.string().required().min(6),
                                 email: Joi.string().email({ minDomainAtoms: 2 }),
                                 address: Joi.string(),
                                 tel: Joi.string(),
@@ -318,7 +318,7 @@ class UserService {
                             }, userp)
                                 .then(() => {
                                     resolve({
-                                        success: true
+                                        status: true
                                       
                                     })
                                 }).catch(err => reject(err));
