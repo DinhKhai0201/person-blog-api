@@ -10,57 +10,57 @@ class UserService {
     register(host, p) {
         return new Promise((resolve, reject) => {
             // fs.readFile('temp/default_sp.json', 'utf8', function (err, data) {
-                // if (err) throw err;
-                // let sp = JSON.parse(data);
-                var username = p.username.toLowerCase();
-                const validate = Joi.validate(p, {
-                    username: Joi.string().required().min(6),
-                    password: Joi.string().required().min(6),
-                    email: Joi.string().email({ minDomainAtoms: 2 }),
-                    address: Joi.string(),
-                    tel: Joi.string(),
-                    background: Joi.string(),
-                    isActive: Joi.boolean()
+            // if (err) throw err;
+            // let sp = JSON.parse(data);
+            var username = p.username.toLowerCase();
+            const validate = Joi.validate(p, {
+                username: Joi.string().required().min(6),
+                password: Joi.string().required().min(6),
+                email: Joi.string().email({ minDomainAtoms: 2 }),
+                address: Joi.string(),
+                tel: Joi.string(),
+                background: Joi.string(),
+                isActive: Joi.boolean()
+            });
+            if (validate.error) {
+                return resolve({
+                    status: false,
+                    message: validate.error.details[0].message
                 });
-                if(validate.error){
-                    return  resolve({
-                                status: false,
-                                message: validate.error.details[0].message
-                            });
-                }
-                User.findOne({
-                    email: p.email
-                })
-                    .then(user => {
-                        if (user != null) {
-                            return resolve({
-                                result: false,
-                                message: MessageConstants.EmailExistingError
-                            })
-                        } else {
-                            let user = new User({
-                                username: username,
-                                password: passwordHelper.hash(username, p.password),
-                                email: p.email,
-                                tel: p.tel,
-                                address: p.address,
-                                coin: 0,
-                                background: '',
-                                isActive: false,
-                                lang: p.lang,
-                                createdAt: new Date()
-                            });
+            }
+            User.findOne({
+                email: p.email
+            })
+                .then(user => {
+                    if (user != null) {
+                        return resolve({
+                            result: false,
+                            message: MessageConstants.EmailExistingError
+                        })
+                    } else {
+                        let user = new User({
+                            username: username,
+                            password: passwordHelper.hash(p.email, p.password),
+                            email: p.email,
+                            tel: p.tel,
+                            address: p.address,
+                            coin: 0,
+                            background: '',
+                            isActive: false,
+                            lang: p.lang,
+                            createdAt: new Date()
+                        });
 
-                            user.save().then(() => {
-                                // informm to sp
-                                resolve({
-                                    result: true,
-                                    message: MessageConstants.RegisterSuccessfully
-                                });
-                            }).catch(err => reject(err));
-                        }
-                    })
-                    .catch(err => reject(err));
+                        user.save().then(() => {
+                            // informm to sp
+                            resolve({
+                                result: true,
+                                message: MessageConstants.RegisterSuccessfully
+                            });
+                        }).catch(err => reject(err));
+                    }
+                })
+                .catch(err => reject(err));
             // });
         });
     }
@@ -83,8 +83,8 @@ class UserService {
 
     verify(email, code) {
         return new Promise((resolve, reject) => {
-                User.findOne({
-                    email: email,
+            User.findOne({
+                email: email,
             })
                 .then(user => {
                     if (user == null) {
@@ -97,7 +97,7 @@ class UserService {
                             user.isActive = true;
                             user.save().then(() => {
                                 resolve({
-                                    status: true, 
+                                    status: true,
                                     message: MessageConstants.VerifyEmailSuccessfully
                                 });
                             }).catch(err => reject(err));
@@ -114,37 +114,37 @@ class UserService {
                 .catch(err => reject(err));
         });
     }
-    
-    getAll(limit,pageCur,type) {
+
+    getAll(limit, pageCur, type) {
         let option = {
             isActive: true
         }
         if (parseInt(type) == 1) { //admin
             option = {}
         }
-        let  perPage = parseInt(limit || 1) ;
-        let  page = parseInt(pageCur || 1 );
+        let perPage = parseInt(limit || 1);
+        let page = parseInt(pageCur || 1);
         return new Promise((resolve, reject) => {
 
-            User.find(option,{username: 1,email: 1,tel: 1,address: 1,background: 1,isActive:1,coin: 1,role: 1}).skip((perPage * page) - perPage)
-            .limit(perPage)
-            .populate("categoryId")
-            .exec(function(err, user) {
-                User.count(option).exec(function(err, count) {
-                    if (err) return reject(err) ;
-                    return resolve({
-                        data: user,
-                        current: page,
-                        pages: Math.ceil(count / perPage),
-                        number: count
+            User.find(option, { username: 1, email: 1, tel: 1, address: 1, background: 1, isActive: 1, coin: 1, role: 1 }).skip((perPage * page) - perPage)
+                .limit(perPage)
+                .populate("categoryId")
+                .exec(function (err, user) {
+                    User.count(option).exec(function (err, count) {
+                        if (err) return reject(err);
+                        return resolve({
+                            data: user,
+                            current: page,
+                            pages: Math.ceil(count / perPage),
+                            number: count
+                        })
+
                     })
-                   
                 })
-            })
         });
-    } 
+    }
     countUser() {
-        return new Promise((resolve, reject) => User.count({isActive: true})
+        return new Promise((resolve, reject) => User.count({ })
             .then(count => resolve(count))
             .catch(err => reject(err)));
     }
@@ -161,15 +161,19 @@ class UserService {
     }
 
 
-    async getById(id) {
-        try {
-            let user = await User.findById(id);
-            return user;
-        } catch (error) {
-        }
+
+    getUserById(id) {
+        console.log(id)
+        return new Promise((resolve, reject) => {
+            User.findOne({
+                _id: id,
+                // isActive: true,
+                // isDeleted: false
+            })
+                .then(user => resolve(user))
+                .catch(err => reject(err));
+        });
     }
-
-
     addOrUpdate(user) {
         return new Promise((resolve, reject) => {
             let query = {
@@ -207,7 +211,43 @@ class UserService {
                 .catch(err => reject(err));
         });
     }
+    updateActive(userId, id, isActive) {
+        return new Promise((resolve, reject) => {
+            User.findOne({ _id: userId })
+                .then(user => {
+                    if (user != null) {
+                        if (user.role == 1) { //role =1 admin
+                            // 0 is false, 1 is true
+                            let option = {
+                                isActive: true
+                            }
+                            if (isActive == 1) {
+                                option = {
+                                    isActive: false
+                                }
+                            }
 
+                            User.update({
+                                _id: id
+                            }, option)
+                                .then((post) => {
+                                    resolve({
+                                        success: true,
+                                        messsage: MessageConstants.SavedSuccessfully
+                                    })
+                                })
+                        } else {
+                            resolve({
+                                success: false,
+                                messsage: MessageConstants.NotAllowChangeActive
+                            })
+                        }
+                    }
+                })
+                .catch(err => reject(err));
+
+        });
+    }
     addDeviceToken(userId, data) {
         let deviceToken = data.deviceToken;
         return new Promise((resolve, reject) => {
@@ -237,18 +277,55 @@ class UserService {
         });
     }
 
-    updateInfo(userId, p) {
+    updateUser(userId, p) {
         return new Promise((resolve, reject) => {
             User.findById(userId)
                 .then(user => {
-                    if (p.email) user.email = p.email;
-                    if (p.tel) user.tel = p.tel;
-                    if (p.address) user.address = p.address;
-                    if (p.background) user.background = p.background;
-                    if (p.password) user.password = p.password;
-                    user.save().then(() => resolve({
-                        success: true
-                    }));
+                    if (user != null) {
+                        if (user.role == 1) {
+                            let userp ={};
+                            if (p.username) userp.username = p.username;
+                            if (p.email) userp.email = p.email;
+                            if (p.tel) userp.tel = p.tel;
+                            if (p.address) userp.address = p.address;
+                            if (p.background) userp.background = p.background;
+                            if (p.password) userp.password = passwordHelper.hash(p.email, p.password);
+                            if (p.coin) userp.coin = p.coin;
+                            if (p.role) userp.role = p.role;
+                            if (p.isActive) userp.isActive = p.isActive;
+                            userp.updatedAt = new Date();
+                            const validate = Joi.validate(p, {
+                                username: Joi.string().required().min(6),
+                                password: Joi.string().required().min(6),
+                                email: Joi.string().email({ minDomainAtoms: 2 }),
+                                address: Joi.string(),
+                                tel: Joi.string(),
+                                _id: Joi.string(),
+                                id: Joi.string(),
+                                role: Joi.string(),
+                                coin: Joi.string(),
+                                background: Joi.string(),
+                                isActive: Joi.boolean()
+                            });
+                            if (validate.error) {
+                                return resolve({
+                                    status: false,
+                                    message: validate.error.details[0].message
+                                });
+                            }
+                            User.update({
+                                _id: p._id
+                            }, userp)
+                                .then(() => {
+                                    resolve({
+                                        success: true
+                                      
+                                    })
+                                }).catch(err => reject(err));
+                        
+                        }
+                    }
+
                 })
                 .catch(err => reject(err));
         });

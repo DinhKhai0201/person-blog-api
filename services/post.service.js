@@ -10,22 +10,28 @@ const mongoose = require('mongoose'),
     fs = require('fs');
 
 class PostService {
-    getAll(limit, pageCur, type) {
+    getAll(limit, pageCur, type, search) {
         let option = {
+            title: { $regex: search },
             isActive: true,
             isDeleted: false
         }
+        let optionSort ={ // new to old
+            $natural:-1
+        }
         if (parseInt(type) == 1) { //admin
             option = {
+                title: { $regex: search },
                 isDeleted: false
             }
         }
         let perPage = parseInt(limit || 1);
         let page = parseInt(pageCur || 1);
         return new Promise((resolve, reject) => {
-            Post.find(option).skip((perPage * page) - perPage)
+            Post.find(option,{ score: { $meta: "textScore" } }).skip((perPage * page) - perPage)
                 .limit(perPage)
                 .populate("categoryId")
+                .sort(optionSort)
                 .exec(function (err, post) {
                     Post.count(option).exec(function (err, count) {
                         if (err) return reject(err);
@@ -33,7 +39,8 @@ class PostService {
                             data: post,
                             current: page,
                             pages: Math.ceil(count / perPage),
-                            number: count
+                            number: count,
+                            perpage: perPage
                         })
 
                     })
@@ -137,6 +144,7 @@ class PostService {
                             if (newItem.tag != undefined) updateObj.tag = newItem.tag;
                             if (newItem.isActive != undefined) updateObj.isActive = newItem.isActive;
                             if (newItem.categoryId != undefined) updateObj.categoryId = newItem.categoryId;
+                            if (newItem.background != undefined) updateObj.background = newItem.background;
                             updateObj.updatedAt = new Date();
                             console.log(newItem._id);
                             Post.update({

@@ -8,6 +8,7 @@ const categorySchema = new Schema({
     description: { type: String, required: true },
     parentId: { type: Schema.Types.ObjectId, ref: 'Category', default: null},
     isDeleted: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
     createdAt: { type: Date, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
 }, {

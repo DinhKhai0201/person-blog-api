@@ -8,7 +8,7 @@ const postSchema = new Schema({
     content: { type: String, required: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User'},
     tag: { type: String},
-    background: { type: String, required: true },
+    background: { type: String, required: true, default:"https://gateway.ipfs.io/ipfs/QmSZBdoj1o7g3FKgkZ6diMHxZ9vQGjMfGkkpcGy2qH7xFN" },
     categoryId: { type: Schema.Types.ObjectId, ref: 'Category', default: null},
     isActive: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },

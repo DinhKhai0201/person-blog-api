@@ -8,31 +8,31 @@ const mongoose = require('mongoose'),
     fs = require('fs');
 
 class CategoryService {
-    getAll(limit,pageCur,type) {
+    getAll(limit, pageCur, type) {
         let option = {
             isDeleted: false
         }
         if (parseInt(type) == 1) { //admin
             option = {}
         }
-        let  perPage = parseInt(limit || 1) ;
-        let  page = parseInt(pageCur || 1) ;
+        let perPage = parseInt(limit || 1);
+        let page = parseInt(pageCur || 1);
         return new Promise((resolve, reject) => {
             Category.find(option).skip((perPage * page) - perPage)
-            .limit(perPage)
-            .populate("categoryId")
-            .exec(function(err, category) {
-                Category.count(option).exec(function(err, count) {
-                    if (err) return reject(err) ;
-                    return resolve({
-                        data: category,
-                        current: page,
-                        pages: Math.ceil(count / perPage),
-                        number: count
+                .limit(perPage)
+                .populate("categoryId")
+                .exec(function (err, category) {
+                    Category.count(option).exec(function (err, count) {
+                        if (err) return reject(err);
+                        return resolve({
+                            data: category,
+                            current: page,
+                            pages: Math.ceil(count / perPage),
+                            number: count
+                        })
+
                     })
-                   
                 })
-            })
         });
     }
     getParentCategory() {
@@ -113,25 +113,31 @@ class CategoryService {
 
         });
     }
-    
+
     countCategory() {
         return new Promise((resolve, reject) => Category.count({})
             .then(count => resolve(count))
             .catch(err => reject(err)));
     }
-    deleteCategoryById(categoryId) {
+    deleteCategoryById(userId, categoryId) {
         return new Promise((resolve, reject) => {
-            Category.findOneAndUpdate({
-                _id: categoryId
-            }, {
-                isDeleted: true
-            })
-                .then((category) => {
-                    resolve({
-                        success: true,
-                        messsage: MessageConstants.SavedSuccessfully
-                    })
+            User.findById(userId)
+                .then(user => {
+                    if (user && user.role == 1) {
+                        Category.findOneAndUpdate({
+                            _id: categoryId
+                        }, {
+                            isDeleted: true
+                        })
+                            .then((category) => {
+                                resolve({
+                                    success: true,
+                                    messsage: MessageConstants.SavedSuccessfully
+                                })
+                            })
+                    }
                 })
+
         });
     }
 

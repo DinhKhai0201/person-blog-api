@@ -1,5 +1,5 @@
 const hashHelper = require('./hash.helper');
 
-module.exports.hash = (username, password) => {
-    return hashHelper.sha512(`${username}.${password}`);
+module.exports.hash = (email, password) => {
+    return hashHelper.sha512(`${email}.${password}`);
 }

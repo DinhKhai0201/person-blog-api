@@ -2,7 +2,8 @@ const PostService = require('../services/post.service');
 
 class PostController {
     getAll(req, res, next) {
-        PostService.getAll(req.query.limit, req.query.page, req.query.type)
+        let {limit, page, type, search} = req.query
+        PostService.getAll(limit, page, type, search)
             .then(posts => res.json(posts))
             .catch(err => next(err));
     }

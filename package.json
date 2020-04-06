@@ -27,6 +27,7 @@
         "dateformat": "^2.2.0",
         "deasync": "^0.1.12",
         "debug": "^2.6.9",
+        "dialogflow": "^1.2.0",
         "ejs": "^2.5.8",
         "express": "^4.15.5",
         "express-ejs-layouts": "^2.4.0",

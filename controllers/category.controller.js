@@ -38,7 +38,7 @@ class CategoryController {
     }
     
     deleteCategoryById(req, res, next) {
-        CategoryService.deleteCategoryById(req.query.id)
+        CategoryService.deleteCategoryById(req.body.id,req.query.id)
             .then(rs => res.json(rs))
             .catch(err => next(err));
     }

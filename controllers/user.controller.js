@@ -14,25 +14,33 @@ class UserController {
     }
     getAll(req, res, next) {
         UserService.getAll(req.query.limit,req.query.page,req.query.type)
-            .then(posts => res.json(posts))
+            .then(user => res.json(user))
             .catch(err => next(err));
     }
-    async getUserById(req, res) {
-        const user = await UserService.getById(req.body.id);
-        res.json(user)
+   
+    getUserById(req, res, next) {
+        UserService.getUserById(req.query.id)
+            .then(user => {
+                res.json(user)
+            })
+            .catch(err => next(err));
     }
-
+    updateActive(req, res, next) {
+        UserService.updateActive(req.body.id, req.query.id, req.query.isActive)
+            .then(user => res.json(user))
+            .catch(err => next(err));
+    }
     async uploadImge(req, res, next) {
         fileService.uploadFile(req).then(file => {
             res.json(file);
         }).catch(err => next(err));
     }
-
-    async updateUser(req, res) {
-        UserService.updateInfo(req.body.id, req.body.userInf).then(data => {
-            res.json(data)
-        })
+    updateUser(req, res, next) {
+        UserService.updateUser(req.body.id, req.body)
+            .then(user => res.json(user))
+            .catch(err => next(err));
     }
+  
 
     async checkPassword(req, res) {
         UserService.checkPassword(req.body.id, req.query.password).then(data => {

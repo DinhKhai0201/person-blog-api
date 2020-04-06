@@ -50,11 +50,11 @@ class AuthService {
         };
     }
 
-    login(username, password) {
+    login(email, password) {
         return new Promise((resolve, reject) => {
             let query = {
-                username: username.toLowerCase(),
-                password: passwordHelper.hash(username.toLowerCase(), password)
+                email: email.toLowerCase(),
+                password: passwordHelper.hash(email.toLowerCase(), password)
             };
             User.findOne(query)
                 .exec((err, user) => {

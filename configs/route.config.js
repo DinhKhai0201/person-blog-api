@@ -14,5 +14,9 @@ module.exports = [
     {
         path: '/category',
         router: 'routes/category.route'
+    },
+    {
+        path: '/chat',
+        router: 'routes/chat.route'
     }
 ];
