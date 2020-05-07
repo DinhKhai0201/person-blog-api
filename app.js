@@ -5,6 +5,7 @@ const mongooseConfig = require('./configs/mongoose.config'),
     socket = require('./socket')
     chalk = require('chalk');
 
+    
 mongooseConfig.loadModels();
 
 module.exports.init = () => {
