@@ -5,7 +5,7 @@ const mongooseConfig = require('./configs/mongoose.config'),
     socket = require('./socket')
     chalk = require('chalk');
 
-    
+
 mongooseConfig.loadModels();
 
 module.exports.init = () => {
@@ -21,6 +21,7 @@ module.exports.init = () => {
 
 module.exports.start = () => {
     this.init().then((app, db) => {
+        console.log("connected",app, db)
         app.listen(appConfig.env.port, () => {
             console.log(chalk.green('Server started on ' + appConfig.env.host + ':' + appConfig.env.port));
         });
