@@ -92,7 +92,8 @@ class AuthService {
                         	message: MessageConstants.UserIsNotActive
                         });
                     }
-                }).catch(err => reject(err));
+                })
+                // .catch(err => reject(err));
         });
     }
 
