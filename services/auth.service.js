@@ -60,9 +60,9 @@ class AuthService {
             console.log(query)
             User.findOne(query)
                 .exec((err, user) => {
-                	console.log(user)
+                	console.log("user", user)
                     if (user && user.isActive) {
-                    	console.log(user)
+                    	console.log("user.isActive",user.isActive)
                         let access = 'auth';
                         let token = this.generateUserAccessToken(user._id, access);
                         var p = {
