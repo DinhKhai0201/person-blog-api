@@ -1,5 +1,5 @@
 module.exports = {
-    uri: "mongodb+srv://kai:chin2701@cluster0-bcxlx.mongodb.net/test?retryWrites=true&w=majority",
+    uri: "mongodb+srv://kai:chin2701@cluster0-bcxlx.mongodb.net/myBlog?retryWrites=true&w=majority",
     options: {
         useNewUrlParser: true ,
         useUnifiedTopology: true
