@@ -10,10 +10,12 @@ const mongoose = require('mongoose'),
 class CategoryService {
     getAll(limit, pageCur, type) {
         let option = {
-            isDeleted: false
+            isActive: true,
         }
         if (parseInt(type) == 1) { //admin
-            option = {}
+            option = {
+            	isDeleted: false
+            }
         }
         let perPage = parseInt(limit || 1);
         let page = parseInt(pageCur || 1);
@@ -65,13 +67,13 @@ class CategoryService {
         });
     }
 
-    addOrUpdateCategory(user, act, item) {
+    addOrUpdateCategory(userId, act, item) {
         return new Promise((resolve, reject) => {
             User.findById(userId)
                 .then(user => {
                     if (user && user.role == 1) {
                         let newItem = item;
-                        if ((newItem._id == undefined && act != FormActions.UpdateMany) || act == FormActions.Copy || ids.length == 0) {
+                        if ((newItem._id == undefined && act != FormActions.UpdateMany) || act == FormActions.Copy) {
                             newItem._id = mongoose.Types.ObjectId();
                             Category.insertMany(newItem)
                                 .then(() => resolve({
@@ -86,7 +88,7 @@ class CategoryService {
                             if (newItem.parentId != undefined) updateObj.parentId = newItem.parentId;
                             updateObj.updatedAt = new Date();
                             Category.update({
-                                _id: newItem.id
+                                _id: newItem._id
                             }, updateObj)
                                 .then(() => {
                                     resolve({

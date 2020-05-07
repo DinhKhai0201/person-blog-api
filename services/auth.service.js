@@ -53,12 +53,16 @@ class AuthService {
     login(email, password) {
         return new Promise((resolve, reject) => {
             let query = {
-                email: email.toLowerCase(),
-                password: passwordHelper.hash(email.toLowerCase(), password)
+                email: email,
+                password: passwordHelper.hash(email, password)
             };
+            console.log(passwordHelper.hash(email, password))
+            console.log(query)
             User.findOne(query)
                 .exec((err, user) => {
+                	console.log(user)
                     if (user && user.isActive) {
+                    	console.log(user)
                         let access = 'auth';
                         let token = this.generateUserAccessToken(user._id, access);
                         var p = {
@@ -77,10 +81,16 @@ class AuthService {
                             token
                         })
                         user.tokens = tokens;
-                        user.save().then(() => resolve(p));
+                        user.save().then(() => resolve({
+                        	status: true,
+                        	user: p
+                        }));
 
                     } else {
-                        resolve(false);
+                        resolve({
+                        	status: false,
+                        	message: MessageConstants.UserIsNotActive
+                        });
                     }
                 }).catch(err => reject(err));
         });

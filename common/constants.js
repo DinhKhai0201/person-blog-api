@@ -63,6 +63,7 @@ module.exports.MessageConstants = {
     QRCodeUsed: "This QR code was used",
     NoActivePromotion: "No active promotion",
     NameExistingError: "Name is existing",
+    UserIsNotActive: "User is not actice",
 }
 
 

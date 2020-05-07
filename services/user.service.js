@@ -3,15 +3,11 @@ const mongoose = require('mongoose'),
     User = mongoose.model('User'),
     constants = require('../common/constants'),
     MessageConstants = constants.MessageConstants,
-    Joi = require('joi'),
-    fs = require('fs');
+    Joi = require('joi');
 
 class UserService {
     register(host, p) {
         return new Promise((resolve, reject) => {
-            // fs.readFile('temp/default_sp.json', 'utf8', function (err, data) {
-            // if (err) throw err;
-            // let sp = JSON.parse(data);
             var username = p.username.toLowerCase();
             const validate = Joi.validate(p, {
                 username: Joi.string().required().min(6),
@@ -333,8 +329,8 @@ class UserService {
 
 
     async  checkPassword(userId, password) {
-        const user = await User.findById(userId).select('username password');
-        const encryptPassword = passwordHelper.hash(user.username, password);
+        const user = await User.findById(userId).select('email password');
+        const encryptPassword = passwordHelper.hash(user.email, password);
         if (encryptPassword == user.password) {
             return { success: true }
         } else {
@@ -378,7 +374,7 @@ class UserService {
             return new Promise((resolve, reject) => {
                 User.findById(userId)
                     .then(user => {
-                        const encryptPassword = passwordHelper.hash(user.username, newPassword);
+                        const encryptPassword = passwordHelper.hash(user.email, newPassword);
                         if (encryptPassword) user.password = encryptPassword;
                         user.save().then(() => resolve({
                             success: true
@@ -389,13 +385,13 @@ class UserService {
         }
     }
 
-    async resetPassword(userName, newPassword, code) {
-        const check = await this.checkCodeResetPasswordValid(userName, code);
+    async resetPassword(email, newPassword, code) {
+        const check = await this.checkCodeResetPasswordValid(email, code);
         if (check) {
             return new Promise((resolve, reject) => {
-                User.findOne({ username: userName.toLowerCase() })
+                User.findOne({ email: email})
                     .then(user => {
-                        const encryptPassword = passwordHelper.hash(user.username, newPassword);
+                        const encryptPassword = passwordHelper.hash(user.email, newPassword);
                         if (encryptPassword) user.password = encryptPassword;
                         user.save().then(() => resolve({
                             success: true
@@ -407,7 +403,7 @@ class UserService {
     }
 
     async checkCodeResetPasswordValid(userName, code) {
-        var user = await User.findOne({ username: userName.toLowerCase() });
+        var user = await User.findOne({ email: email});
         if (user && user.resetPasswordCodes) {
             const resetPasswordCodes = user.resetPasswordCodes;
             const lastCode = resetPasswordCodes[resetPasswordCodes.length - 1];

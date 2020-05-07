@@ -18,7 +18,7 @@ class PostController {
             .catch(err => next(err));
     }
     getPostByCat(req, res, next) {
-        PostService.getPostByCat(req.query.id)
+        PostService.getPostByCat(req.query.id, req.query.limit, req.query.page)
             .then(post => res.json(post))
             .catch(err => next(err));
     }

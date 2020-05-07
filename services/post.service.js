@@ -31,6 +31,7 @@ class PostService {
             Post.find(option,{ score: { $meta: "textScore" } }).skip((perPage * page) - perPage)
                 .limit(perPage)
                 .populate("categoryId")
+                .populate("userId")
                 .sort(optionSort)
                 .exec(function (err, post) {
                     Post.count(option).exec(function (err, count) {
@@ -70,19 +71,42 @@ class PostService {
                 // isActive: true,
                 isDeleted: false
             }).populate("categoryId")
+              .populate("userId")
                 .then(post => resolve(post))
                 .catch(err => reject(err));
         });
     }
-    getPostByCat(id) {
-        return new Promise((resolve, reject) => {
-            console.log("cat");
-            Post.findOne({
-                categoryId: id,
+    getPostByCat(id, limit, pageCur) {
+    	let option = {
+            	categoryId: id,
                 isActive: true,
                 isDeleted: false
-            }).populate("categoryId")
-                .then(post => resolve(post))
+        }
+        let optionSort ={ // new to old
+            $natural:-1
+        }
+        let perPage = parseInt(limit || 1);
+        let page = parseInt(pageCur || 1);
+        return new Promise((resolve, reject) => {
+            console.log("cat");
+            Post.find(option).skip((perPage * page) - perPage)
+                .limit(perPage)
+            .populate("categoryId")
+            .sort(optionSort)
+                .then(post => {
+                	console.log(post);
+                	Post.count(option).exec(function (err, count) {
+                        if (err) return reject(err);
+                        return resolve({
+                            data: post,
+                            current: page,
+                            pages: Math.ceil(count / perPage),
+                            number: count,
+                            perpage: perPage
+                        })
+
+                    })
+                })
                 .catch(err => reject(err));
         });
     }
